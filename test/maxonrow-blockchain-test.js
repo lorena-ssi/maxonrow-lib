@@ -16,15 +16,6 @@ const z = new Zen('sha256')
 // 'caelumlabs' SHA256 hash
 const caelumHashedDid = '42dd5715a308829e'
 
-
-const mxw = require('mxw-sdk-js')
-const token = require('mxw-sdk-js').nonFungibleToken
-
-// verbose flags
-const silentRpc = true
-const indent = '    '
-const silent = true
-
 const nodeProvider = {
   connection: {
     url: process.env.EndpointUrl || 'localhost',
@@ -40,7 +31,7 @@ const nodeProvider = {
   name: 'mxw',
 
   kyc: {
-    issuer: process.env.KycIssuer = 'pill maple dutch predict bulk goddess nice left paper heart loan fresh'
+    issuer: process.env.KycIssuer || 'unknown'
   },
 
   nonFungibleToken: {
@@ -48,94 +39,94 @@ const nodeProvider = {
     issuer: process.env.ProviderWalletMnemonic || 'dunno',
     middleware: process.env.IssuerWalletMnemonic || 'dunno',
     feeCollector: process.env.FeeCollectorWalletAddr || 'dunno'
-
   }
-
 }
 
 const generateDid = async (myString) => {
-    const zhash = await z.hash(myString)
-    console.log('zhash:', zhash)
-    const did = zhash.hash.substr(0, 16)
-    console.log('Did: ' + did)
-    return did
+  const zhash = await z.hash(myString)
+  console.log('zhash:', zhash)
+  const did = zhash.hash.substr(0, 16)
+  console.log('Did: ' + did)
+  return did
 }
 
 const generatePublicKey = async (did) => {
-    const kZpair = await z.newKeyPair(did)
-    const pubKey = kZpair[did].keypair.public_key
-    console.log('Public Key:', pubKey)
-    return pubKey
+  const kZpair = await z.newKeyPair(did)
+  const pubKey = kZpair[did].keypair.public_key
+  console.log('Public Key:', pubKey)
+  return pubKey
 }
 
 describe('Maxonrow Blockchain Tests', function () {
-    let maxBlockApi
-    let did, pubKey
+  let maxBlockApi
+  let did, pubKey
 
-    before('Lorena Substrate Test Preparation', async () => {
-        const didString = Utils.makeUniqueString(16)
-        did = await generateDid(didString)
-        pubKey = await generatePublicKey(did)
-    })
+  before('Lorena Substrate Test Preparation', async () => {
+    const didString = Utils.makeUniqueString(16)
+    did = await generateDid(didString)
+    pubKey = await generatePublicKey(did)
+  })
 
-    it('Generate a DID and publicKey', async () => {
-        const didGenTest = await generateDid('caelumlabs')
-        const pubKeyGenTest = await generatePublicKey(didGenTest)
-        console.log('didGen: ' + didGenTest + ' pubkey: ' + pubKeyGenTest)
-        expect(didGenTest).equal(caelumHashedDid)
-    })
+  it('Generate a DID and publicKey', async () => {
+    const didGenTest = await generateDid('caelumlabs')
+    const pubKeyGenTest = await generatePublicKey(didGenTest)
+    console.log('didGen: ' + didGenTest + ' pubkey: ' + pubKeyGenTest)
+    expect(didGenTest).equal(caelumHashedDid)
+  })
 
-    it('Get Token', async () => {
-        maxBlockApi = new LorenaMaxonrow()
-    })
+  it('Get Token', async () => {
+    maxBlockApi = new LorenaMaxonrow(nodeProvider)
+    await maxBlockApi.connect()
+    maxBlockApi.disconnect()
+  })
 
-    // it('Register a DID', async () => {
-    //     // SetKeyring and Connect are being called here because mocha Before function is not waiting fro Keyring WASM library load
-    //     maxBlockApi = new LorenaSubstrate()
-    //     await maxBlockApi.connect()
-    //     maxBlockApi.setKeyring('Alice')
-    //     await maxBlockApi.registerDid(did, pubKey)
-    // })
+  // it('Register a DID', async () => {
+  //     // SetKeyring and Connect are being called here because mocha Before function is not waiting fro Keyring WASM library load
+  //     maxBlockApi = new LorenaSubstrate()
+  //     await maxBlockApi.connect()
+  //     maxBlockApi.setKeyring('Alice')
+  //     await maxBlockApi.registerDid(did, pubKey)
+  // })
 
-    // it('Check DID registration', async () => {
-    //     const registeredDid = await subscribe2RegisterEvents(maxBlockApi.api, 'DidRegistered')
-    //     console.log('Registered DID:', registeredDid)
-    //     maxBlockApi.api.query.system.events()
-    //     console.log('Unsubscribed')
-    //     const hexWithPadding = registeredDid.split('x')[1]
-    //     const hex = hexWithPadding.substring(0, 16)
-    //     // console.log('HEX', hex)
-    //     console.log('UTF8', Buffer.from(hex, 'hex').toString('utf8'))
-    //     expect(hex).equal(did)
-    // })
+  // it('Check DID registration', async () => {
+  //     const registeredDid = await subscribe2RegisterEvents(maxBlockApi.api, 'DidRegistered')
+  //     console.log('Registered DID:', registeredDid)
+  //     maxBlockApi.api.query.system.events()
+  //     console.log('Unsubscribed')
+  //     const hexWithPadding = registeredDid.split('x')[1]
+  //     const hex = hexWithPadding.substring(0, 16)
+  //     // console.log('HEX', hex)
+  //     console.log('UTF8', Buffer.from(hex, 'hex').toString('utf8'))
+  //     expect(hex).equal(did)
+  // })
 
-    // it('GetKey from a DID', async () => {
-    //     maxBlockApi.getActualDidKey(did).then((key) => {
-    //         console.log('Did: ' + did + ' Returned key@: ' + key)
-    //         // console.log('HEX', hex)
-    //         // console.log('UTF8', Buffer.from(hex, 'hex').toString('utf8'))
-    //         expect(key).equal(pubKey)
-    //     })
-    // })
+  // it('GetKey from a DID', async () => {
+  //     maxBlockApi.getActualDidKey(did).then((key) => {
+  //         console.log('Did: ' + did + ' Returned key@: ' + key)
+  //         // console.log('HEX', hex)
+  //         // console.log('UTF8', Buffer.from(hex, 'hex').toString('utf8'))
+  //         expect(key).equal(pubKey)
+  //     })
+  // })
 
-    // it('Register a Did Doc Hash', async () => {
-    //   const randomHash = Utils.makeUniqueString.toString(16)
-    //   await maxBlockApi.registerDidDocument(did, randomHash)
-    //   console.log('Register a Did Doc Hash - Did:' + did + ' RandomHash:' + randomHash)
-    //   await maxBlockApi.getDidDocHash(did) (result)
-    //   console.log('getDidDocHash - Query - Hash', result)
-    // })
+  // it('Register a Did Doc Hash', async () => {
+  //   const randomHash = Utils.makeUniqueString.toString(16)
+  //   await maxBlockApi.registerDidDocument(did, randomHash)
+  //   console.log('Register a Did Doc Hash - Did:' + did + ' RandomHash:' + randomHash)
+  //   await maxBlockApi.getDidDocHash(did) (result)
+  //   console.log('getDidDocHash - Query - Hash', result)
+  // })
 
-    // it('Rotate Key', async () => {
-    //     const newPubKey = await generatePublicKey(did)
-    //     await maxBlockApi.rotateKey(did, newPubKey)
-    //     await subscribe2RegisterEvents(maxBlockApi.api, 'KeyRotated')
-    //     const key = await maxBlockApi.getActualDidKey(did)
-    //     console.log('Rotate Key test - Did:' + did + ' Old key:' + pubKey + ' New registered key:' + key)
-    //     expect(key).equal(newPubKey)
-    // })
+  // it('Rotate Key', async () => {
+  //     const newPubKey = await generatePublicKey(did)
+  //     await maxBlockApi.rotateKey(did, newPubKey)
+  //     await subscribe2RegisterEvents(maxBlockApi.api, 'KeyRotated')
+  //     const key = await maxBlockApi.getActualDidKey(did)
+  //     console.log('Rotate Key test - Did:' + did + ' Old key:' + pubKey + ' New registered key:' + key)
+  //     expect(key).equal(newPubKey)
+  // })
 
-    // it('should clean up after itself', () => {
-    //     maxBlockApi.disconnect()
-    // })
+  // it('should clean up after itself', () => {
+  //     maxBlockApi.disconnect()
+  // })
 })
