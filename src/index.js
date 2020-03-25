@@ -1,7 +1,8 @@
 'use strict'
 
 const mxw = require('mxw-sdk-js')
-// const token = require('mxw-sdk-js').nonFungibleToken
+const { token, NonFungibleTokenActions, performNonFungibleTokenStatus } = require('mxw-sdk-js').nonFungibleToken
+const bigNumberify = require('mxw-sdk-js').utils.bigNumberify
 
 const indent = '     '
 
@@ -39,6 +40,27 @@ module.exports = class LorenaMaxonrow {
 
       },
       ...nodeProvider
+    }
+
+    //* Operation 1 : Create new non fungible token
+    this.nonFungibleTokenProperties = {
+      name: 'Decentralised identifier ', // name
+      symbol: 'DID', // symbol
+      fee: {
+        to: this.nodeProvider.nonFungibleToken.feeCollector, // feeCollector wallet address
+        value: bigNumberify('1')
+      },
+      metadata: 'Wallet able to manage their own metadata',
+      properties: 'Decentralised identifier'
+    }
+
+    this.defaultOverrides = {
+      logSignaturePayload: function (payload) {
+        if (!this.nodeProvider.trace.silentRpc) console.log(indent, 'signaturePayload:', JSON.stringify(payload))
+      },
+      logSignedTransaction: function (signedTransaction) {
+        if (!this.nodeProvider.trace.silentRpc) console.log(indent, 'signedTransaction:', signedTransaction)
+      }
     }
   }
 
@@ -81,6 +103,36 @@ module.exports = class LorenaMaxonrow {
       } catch (error) {
         console.log(error)
         return reject(error)
+      }
+    })
+  }
+
+  async createIdentity () {
+    return token.NonFungibleToken.create(this.nonFungibleTokenProperties,
+      this.nodeProvider.nonFungibleToken.issuer,
+      this.defaultOverrides).then((token) => {
+      if (token) {
+        //* Approve
+        const overrides = {
+          tokenFees: [
+            { action: NonFungibleTokenActions.transfer, feeName: 'default' },
+            { action: NonFungibleTokenActions.transferOwnership, feeName: 'default' },
+            { action: NonFungibleTokenActions.acceptOwnership, feeName: 'default' }
+          ],
+          endorserList: [],
+          mintLimit: 1,
+          transferLimit: 0,
+          burnable: false,
+          transferable: false,
+          modifiable: true,
+          pub: true // not public
+        }
+
+        return performNonFungibleTokenStatus(this.nonFungibleTokenProperties.symbol,
+          token.NonFungibleToken.approveNonFungibleToken,
+          overrides).then((receipt) => {
+          console.log(receipt) // do something
+        })
       }
     })
   }

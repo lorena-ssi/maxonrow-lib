@@ -65,6 +65,8 @@ describe('Maxonrow Blockchain Tests', function () {
     const didString = Utils.makeUniqueString(16)
     did = await generateDid(didString)
     pubKey = await generatePublicKey(did)
+    maxBlockApi = new LorenaMaxonrow(nodeProvider)
+    await maxBlockApi.connect()
   })
 
   it('Generate a DID and publicKey', async () => {
@@ -74,16 +76,14 @@ describe('Maxonrow Blockchain Tests', function () {
     expect(didGenTest).equal(caelumHashedDid)
   })
 
-  it('Get Token', async () => {
-    maxBlockApi = new LorenaMaxonrow(nodeProvider)
-    await maxBlockApi.connect()
-    maxBlockApi.disconnect()
-  })
+  // it('Create Non Fungible Token', async () => {
+  //   await maxBlockApi.createIdentity()
+  // })
 
   // it('Register a DID', async () => {
   //     // SetKeyring and Connect are being called here because mocha Before function is not waiting fro Keyring WASM library load
-  //     maxBlockApi = new LorenaSubstrate()
-  //     await maxBlockApi.connect()
+  // maxBlockApi = new LorenaMaxonrow(nodeProvider)
+  // await maxBlockApi.connect()
   //     maxBlockApi.setKeyring('Alice')
   //     await maxBlockApi.registerDid(did, pubKey)
   // })
@@ -126,7 +126,7 @@ describe('Maxonrow Blockchain Tests', function () {
   //     expect(key).equal(newPubKey)
   // })
 
-  // it('should clean up after itself', () => {
-  //     maxBlockApi.disconnect()
-  // })
+  after('Clean up connections', function () {
+    maxBlockApi.disconnect()
+  })
 })
