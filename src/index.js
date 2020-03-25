@@ -1,8 +1,8 @@
 'use strict'
 
-const mxw = require('mxw-sdk-js')
-const { token, NonFungibleTokenActions, performNonFungibleTokenStatus } = require('mxw-sdk-js').nonFungibleToken
-const bigNumberify = require('mxw-sdk-js').utils.bigNumberify
+const { mxw, utils, nonFungibleToken } = require('mxw-sdk-js')
+const { NonFungibleTokenActions, performNonFungibleTokenStatus } = nonFungibleToken
+const bigNumberify = utils.bigNumberify
 
 const indent = '     '
 
@@ -42,23 +42,11 @@ module.exports = class LorenaMaxonrow {
       ...nodeProvider
     }
 
-    //* Operation 1 : Create new non fungible token
-    this.nonFungibleTokenProperties = {
-      name: 'Decentralised identifier ', // name
-      symbol: 'DID', // symbol
-      fee: {
-        to: this.nodeProvider.nonFungibleToken.feeCollector, // feeCollector wallet address
-        value: bigNumberify('1')
-      },
-      metadata: 'Wallet able to manage their own metadata',
-      properties: 'Decentralised identifier'
-    }
-
     this.defaultOverrides = {
-      logSignaturePayload: function (payload) {
+      logSignaturePayload: (payload) => {
         if (!this.nodeProvider.trace.silentRpc) console.log(indent, 'signaturePayload:', JSON.stringify(payload))
       },
-      logSignedTransaction: function (signedTransaction) {
+      logSignedTransaction: (signedTransaction) => {
         if (!this.nodeProvider.trace.silentRpc) console.log(indent, 'signedTransaction:', signedTransaction)
       }
     }
@@ -91,8 +79,8 @@ module.exports = class LorenaMaxonrow {
         const provider = mxw.Wallet.fromMnemonic(this.nodeProvider.nonFungibleToken.provider).connect(this.providerConnection)
         if (!silent) console.log(indent, 'Provider:', JSON.stringify({ address: provider.address, mnemonic: provider.mnemonic }))
 
-        const issuer = mxw.Wallet.fromMnemonic(this.nodeProvider.nonFungibleToken.issuer).connect(this.providerConnection)
-        if (!silent) console.log(indent, 'Issuer:', JSON.stringify({ address: issuer.address, mnemonic: issuer.mnemonic }))
+        this.issuer = mxw.Wallet.fromMnemonic(this.nodeProvider.nonFungibleToken.issuer).connect(this.providerConnection)
+        if (!silent) console.log(indent, 'Issuer:', JSON.stringify({ address: this.issuer.address, mnemonic: this.issuer.mnemonic }))
 
         const middleware = mxw.Wallet.fromMnemonic(this.nodeProvider.nonFungibleToken.middleware).connect(this.providerConnection)
         if (!silent) console.log(indent, 'Middleware:', JSON.stringify({ address: middleware.address, mnemonic: middleware.mnemonic }))
@@ -107,34 +95,51 @@ module.exports = class LorenaMaxonrow {
     })
   }
 
-  async createIdentity () {
-    return token.NonFungibleToken.create(this.nonFungibleTokenProperties,
-      this.nodeProvider.nonFungibleToken.issuer,
-      this.defaultOverrides).then((token) => {
-      if (token) {
+  async createIdentityToken () {
+    this.nonFungibleTokenProperties = {
+      name: 'Decentralised identifier ',
+      symbol: 'DID',
+      fee: {
+        to: this.nodeProvider.nonFungibleToken.feeCollector, // feeCollector wallet address
+        value: bigNumberify('1')
+      },
+      metadata: 'Wallet able to manage their own metadata',
+      properties: 'Decentralised identifier'
+    }
+    return nonFungibleToken
+      .NonFungibleToken
+      .create(
+        this.nonFungibleTokenProperties,
+        this.issuer, // this.nodeProvider.nonFungibleToken.issuer,
+        this.defaultOverrides
+      )
+      .then((token) => {
+        if (token) {
         //* Approve
-        const overrides = {
-          tokenFees: [
-            { action: NonFungibleTokenActions.transfer, feeName: 'default' },
-            { action: NonFungibleTokenActions.transferOwnership, feeName: 'default' },
-            { action: NonFungibleTokenActions.acceptOwnership, feeName: 'default' }
-          ],
-          endorserList: [],
-          mintLimit: 1,
-          transferLimit: 0,
-          burnable: false,
-          transferable: false,
-          modifiable: true,
-          pub: true // not public
+          const overrides = {
+            tokenFees: [
+              { action: NonFungibleTokenActions.transfer, feeName: 'default' },
+              { action: NonFungibleTokenActions.transferOwnership, feeName: 'default' },
+              { action: NonFungibleTokenActions.acceptOwnership, feeName: 'default' }
+            ],
+            endorserList: [],
+            mintLimit: 1,
+            transferLimit: 0,
+            burnable: false,
+            transferable: false,
+            modifiable: true,
+            pub: true // not public
+          }
+          return performNonFungibleTokenStatus(
+            this.nonFungibleTokenProperties.symbol,
+            token.NonFungibleToken.approveNonFungibleToken,
+            overrides
+          )
+            .then((receipt) => {
+              console.log(receipt) // do something
+            })
         }
-
-        return performNonFungibleTokenStatus(this.nonFungibleTokenProperties.symbol,
-          token.NonFungibleToken.approveNonFungibleToken,
-          overrides).then((receipt) => {
-          console.log(receipt) // do something
-        })
-      }
-    })
+      })
   }
 
   async registerDid (did, pubkey) {

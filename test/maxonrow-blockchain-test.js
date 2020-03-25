@@ -9,9 +9,13 @@ chai.use(chaiAsPromised)
 
 require('dotenv').config()
 const LorenaMaxonrow = require('../src/index.js')
-const Utils = require('../src/utils/utils')
+// const Utils = require('../src/utils/utils')
 const Zen = require('@lorena-ssi/zenroom-lib')
 const z = new Zen('sha256')
+
+// MaxonRow errors
+// TODO: Should be used when MaxonRow errors are expected
+// const { errors } = require('mxw-sdk-js')
 
 // 'caelumlabs' SHA256 hash
 const caelumHashedDid = '42dd5715a308829e'
@@ -59,12 +63,12 @@ const generatePublicKey = async (did) => {
 
 describe('Maxonrow Blockchain Tests', function () {
   let maxBlockApi
-  let did, pubKey
+  // let did, pubKey
 
   before('Lorena Substrate Test Preparation', async () => {
-    const didString = Utils.makeUniqueString(16)
-    did = await generateDid(didString)
-    pubKey = await generatePublicKey(did)
+    // const didString = Utils.makeUniqueString(16)
+    // did = await generateDid(didString)
+    // pubKey = await generatePublicKey(did)
     maxBlockApi = new LorenaMaxonrow(nodeProvider)
     await maxBlockApi.connect()
   })
@@ -76,9 +80,14 @@ describe('Maxonrow Blockchain Tests', function () {
     expect(didGenTest).equal(caelumHashedDid)
   })
 
-  // it('Create Non Fungible Token', async () => {
-  //   await maxBlockApi.createIdentity()
-  // })
+  it('Create Non Fungible Token', async () => {
+    try {
+      await maxBlockApi.createIdentityToken()
+    } catch (err) {
+      // TODO: use MaxonRow errors
+      expect(err.info.message).to.eq('Token already exists: DID')
+    }
+  })
 
   // it('Register a DID', async () => {
   //     // SetKeyring and Connect are being called here because mocha Before function is not waiting fro Keyring WASM library load
