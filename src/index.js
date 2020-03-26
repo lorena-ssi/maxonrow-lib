@@ -3,6 +3,7 @@
 const { mxw, utils, nonFungibleToken } = require('mxw-sdk-js')
 const { NonFungibleTokenActions, performNonFungibleTokenStatus } = nonFungibleToken
 const bigNumberify = utils.bigNumberify
+const Utils = require('../src/utils/utils')
 
 const indent = '     '
 
@@ -19,25 +20,20 @@ module.exports = class LorenaMaxonrow {
         url: 'localhost',
         timeout: 60000
       },
-
       trace: {
         silent: false,
         silentRpc: false
       },
-
       chainId: 'unknown',
       name: 'mxw',
-
       kyc: {
         issuer: 'dunno'
       },
-
       nonFungibleToken: {
         provider: 'dunno',
         issuer: 'dunno',
         middleware: 'dunno',
         feeCollector: 'dunno'
-
       },
       ...nodeProvider
     }
@@ -95,16 +91,72 @@ module.exports = class LorenaMaxonrow {
     })
   }
 
-  async createIdentityToken () {
+  async createIdentityToken (did, pubKey) {
+    // Convert did string to hashed did
+    const hashedDID = Utils.hashCode(did)
+
+    // Convert pubKey to vec[u8]
+    const arr = Utils.toUTF8Array(pubKey)
+
+    console.log('Hasheddid:' + hashedDID + ' UTF8 pubkey arr:' + arr)
+
+    const key = {
+      publicKey: pubKey,
+      diddoc_hash: 'empty',
+      valid_from: Date.now().toString(),
+      valid_to: '0'
+    }
+    console.log('yout key is:', key)
+
+    // Mutable data
+    const metadata = {
+      keys: [key],
+      keyIndex: 1
+    }
+
+    // Immutable data
+    const properties = {
+
+    }
+    //               CAIO
+    //         |       |              |
+    // idHme=PARENT   PARENT=idJob    ... = Identidad :  DID
+    //     |  |
+    //     H  H  H
+
+    //     Identity = DID
+    //     |      |     |
+    //     Key   Key
+
+    //     Identity = CAIO
+    //     NonFungibleToken - DIDs
+    //     NonFungibleTokenItem =
+
+    //     //* Operation 2 : Mint NFT Item to own-self
+    //     // let nftItemMinted: NonFungibleTokenItem;
+
+    //     let item = {
+    //       symbol: "DID",
+    //       itemID: 'did:example:123456#oidc',
+    //       properties: "properties",
+    //       metadata: "str1"
+    //     }
+
+    //     let minterNFT = new NonFungibleToken("DID", issuer);
+
+    //     return minterNFT.mint(issuer.address, item).then((receipt) => {
+    //       console.log(receipt); //do something
+    //     });
+
     this.nonFungibleTokenProperties = {
       name: 'Decentralised identifier ',
-      symbol: 'DID',
+      symbol: 'Identity no??? BORRA esto y ejecuta a ver que pasa', // pongo identity por que el DDID ya lo han creado ellos.... (además tendremos que añadirlo)
       fee: {
         to: this.nodeProvider.nonFungibleToken.feeCollector, // feeCollector wallet address
         value: bigNumberify('1')
       },
-      metadata: 'Wallet able to manage their own metadata',
-      properties: 'Decentralised identifier'
+      properties: JSON.stringify(properties), // immutable
+      metadata: JSON.stringify(metadata) // mutable
     }
     return nonFungibleToken
       .NonFungibleToken
@@ -115,15 +167,15 @@ module.exports = class LorenaMaxonrow {
       )
       .then((token) => {
         if (token) {
-        //* Approve
+          //* Approve
           const overrides = {
             tokenFees: [
-              { action: NonFungibleTokenActions.transfer, feeName: 'default' },
-              { action: NonFungibleTokenActions.transferOwnership, feeName: 'default' },
-              { action: NonFungibleTokenActions.acceptOwnership, feeName: 'default' }
+              { action: NonFungibleTokenActions.transfer, feeName: 'default' }, // Should not be possible
+              { action: NonFungibleTokenActions.transferOwnership, feeName: 'default' }, // Should not be possible
+              { action: NonFungibleTokenActions.acceptOwnership, feeName: 'default' } // Should not be possible
             ],
             endorserList: [],
-            mintLimit: 1,
+            mintLimit: false,
             transferLimit: 0,
             burnable: false,
             transferable: false,
