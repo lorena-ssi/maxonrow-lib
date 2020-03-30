@@ -129,14 +129,16 @@ module.exports = class LorenaMaxonrow {
     // Convert pubKey to vec[u8]
     const arr = Utils.toUTF8Array(pubKey)
 
-    console.log('Hasheddid:' + hashedDID + ' UTF8 pubkey arr:' + arr)
+    console.log('HasheddSid:' + hashedDID + ' UTF8 pubkey arr:' + arr)
 
     // Mutable data
     const metadata = {}
 
     // Immutable data
     const properties = {
-      did
+      did,
+      // ToDo
+      // keyIndex: keyId
     }
 
     this.nonFungibleTokenProperties = {
