@@ -18,7 +18,7 @@ Infer from didMethod which Blockchain class must be instantiated
 
 ![Dids structure in MXN Blockchain](images/lorena-mxn.jpg)
 
-### Low Lever Design
+### Low Level Design
 
 
 <!--stackedit_data:

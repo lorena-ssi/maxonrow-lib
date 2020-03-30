@@ -19,6 +19,6 @@ Blockchain usage is specified by argument.
 
 Infer from didMethod which Blockchain class must be instantiated
 
-![Dids structure in MXN Blockchain](images/lorena-mxn.jpg)
+![Dids structure in MXN Blockchain](docs/images/lorena-mxn.jpg)
 
-### Low Lever Design
+### Low Level Design
