@@ -91,6 +91,37 @@ module.exports = class LorenaMaxonrow {
     })
   }
 
+  createKeyTokenItem (keyId, pubKey) {
+    /**
+     * Substrate Key:
+     * Key {
+     *  publicKey: ,
+     *  diddoc_hash: ,
+     *  valid_from: ,
+     *  valid_to:
+     * }
+     */
+
+    // Mutable data
+    const metadata = {
+      diddoc_hash: '',
+      valid_to: ''
+    }
+
+    // Immutable data
+    const properties = {
+      publicKey: pubKey,
+      valid_from: Date.now().toString()
+    }
+
+    return {
+      symbol: 'LORKEY',
+      itemID: '#' + keyId,
+      properties: JSON.stringify(properties), // immutable
+      metadata: JSON.stringify(metadata)
+    }
+  }
+
   async createIdentityToken (did, pubKey) {
     // Convert did string to hashed did
     const hashedDID = Utils.hashCode(did)
@@ -100,57 +131,17 @@ module.exports = class LorenaMaxonrow {
 
     console.log('Hasheddid:' + hashedDID + ' UTF8 pubkey arr:' + arr)
 
-    const key = {
-      publicKey: pubKey,
-      diddoc_hash: 'empty',
-      valid_from: Date.now().toString(),
-      valid_to: '0'
-    }
-    console.log('yout key is:', key)
-
     // Mutable data
-    const metadata = {
-      keys: [key],
-      keyIndex: 1
-    }
+    const metadata = {}
 
     // Immutable data
     const properties = {
-
+      did
     }
-    //               CAIO
-    //         |       |              |
-    // idHme=PARENT   PARENT=idJob    ... = Identidad :  DID
-    //     |  |
-    //     H  H  H
-
-    //     Identity = DID
-    //     |      |     |
-    //     Key   Key
-
-    //     Identity = CAIO
-    //     NonFungibleToken - DIDs
-    //     NonFungibleTokenItem =
-
-    //     //* Operation 2 : Mint NFT Item to own-self
-    //     // let nftItemMinted: NonFungibleTokenItem;
-
-    //     let item = {
-    //       symbol: "DID",
-    //       itemID: 'did:example:123456#oidc',
-    //       properties: "properties",
-    //       metadata: "str1"
-    //     }
-
-    //     let minterNFT = new NonFungibleToken("DID", issuer);
-
-    //     return minterNFT.mint(issuer.address, item).then((receipt) => {
-    //       console.log(receipt); //do something
-    //     });
 
     this.nonFungibleTokenProperties = {
       name: 'Decentralised identifier ',
-      symbol: 'Identity no??? BORRA esto y ejecuta a ver que pasa', // pongo identity por que el DDID ya lo han creado ellos.... (además tendremos que añadirlo)
+      symbol: 'LORID', // pongo identity por que el DDID ya lo han creado ellos.... (además tendremos que añadirlo)
       fee: {
         to: this.nodeProvider.nonFungibleToken.feeCollector, // feeCollector wallet address
         value: bigNumberify('1')
@@ -194,8 +185,15 @@ module.exports = class LorenaMaxonrow {
       })
   }
 
-  async registerDid (did, pubkey) {
+  async registerDid (did, pubKey) {
+    const key = this.createKeyTokenItem('keyId', pubKey)
+    // console.log('yout key is:', key)
 
+    const minterIdentity = new nonFungibleToken.NonFungibleToken('LORID', this.issuer)
+
+    return minterIdentity.mint(this.issuer.address, key).then((receipt) => {
+      console.log(receipt) // do something
+    })
   }
 
   async getActualKey (did) {
@@ -206,7 +204,7 @@ module.exports = class LorenaMaxonrow {
 
   }
 
-  async rotateKey (did, newpubKey) {
+  async rotateKey (did, newPubKey) {
 
   }
 

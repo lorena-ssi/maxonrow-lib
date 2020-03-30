@@ -18,26 +18,20 @@ const z = new Zen('sha256')
 // const { errors } = require('mxw-sdk-js')
 
 // 'caelumlabs' SHA256 hash
-const caelumHashedDid = '42dd5715a308829e'
+// const caelumHashedDid = '42dd5715a308829e'
 
 const nodeProvider = {
   connection: {
     url: process.env.EndpointUrl || 'localhost',
     timeout: 60000
   },
-
   trace: {
     silent: true,
     silentRpc: true
   },
-
-  chainId: process.env.ChainId || 'unknown',
+  chainId: process.env.ChainId,
   name: 'mxw',
-
-  kyc: {
-    issuer: process.env.KycIssuer || 'unknown'
-  },
-
+  kyc: { issuer: process.env.KycIssuer },
   nonFungibleToken: {
     provider: process.env.ProviderWalletMnemonic || 'dunno',
     issuer: process.env.ProviderWalletMnemonic || 'dunno',
@@ -73,11 +67,16 @@ describe('Maxonrow Blockchain Tests', function () {
     await maxBlockApi.connect()
   })
 
-  it('Generate a DID and publicKey', async () => {
-    const didGenTest = await generateDid('caelumlabs')
-    const pubKeyGenTest = await generatePublicKey(didGenTest)
-    console.log('didGen: ' + didGenTest + ' pubkey: ' + pubKeyGenTest)
-    expect(didGenTest).equal(caelumHashedDid)
+  // it('Generate a DID and publicKey', async () => {
+  //   const didGenTest = await generateDid('caelumlabs')
+  //   const pubKeyGenTest = await generatePublicKey(didGenTest)
+  //   console.log('didGen: ' + didGenTest + ' pubkey: ' + pubKeyGenTest)
+  //   expect(didGenTest).equal(caelumHashedDid)
+  // })
+
+  it('sohuld create a Key NonFungibleTokenItem', async () => {
+    const myKey = maxBlockApi.createKeyTokenItem('keyId-1', pubKey)
+    console.log('My key is: ', myKey)
   })
 
   // it('Create Non Fungible Token', async () => {
