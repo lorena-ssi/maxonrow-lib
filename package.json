@@ -2,7 +2,7 @@
   "name": "maxonrow-lib",
   "version": "1.0.0",
   "description": "Lorena Maxonrow integration library",
-  "main": "index.js",
+  "main": "src/index.js",
   "author": "Caio Rossi",
   "license": "MIT",
   "repository": {
@@ -22,6 +22,7 @@
   "homepage": "https://github.com/lorena-ssi/maxonrow-lib#readme",
   "dependencies": {
     "@babel/core": "^7.9.0",
+    "@lorena-ssi/blockchain-lib": "^1.0.0",
     "mxw-sdk-js": "^0.8.1"
   },
   "devDependencies": {

@@ -1,5 +1,6 @@
 'use strict'
 
+const BlockchainInterface = require('@lorena-ssi/blockchain-lib')
 const { mxw, utils, nonFungibleToken } = require('mxw-sdk-js')
 const { NonFungibleTokenActions, performNonFungibleTokenStatus } = nonFungibleToken
 const bigNumberify = utils.bigNumberify
@@ -10,8 +11,14 @@ const indent = '     '
 /**
  * Javascript Class to interact with Maxonrow Blockchain.
  */
-module.exports = class LorenaMaxonrow {
+module.exports = class LorenaMaxonrow extends BlockchainInterface {
+  /**
+   * Constructor
+   *
+   * @param {*} nodeProvider Provider connection information
+   */
   constructor (nodeProvider) {
+    super()
     this.api = false
     this.keypair = {}
     this.units = 1000000000
@@ -48,6 +55,9 @@ module.exports = class LorenaMaxonrow {
     }
   }
 
+  /**
+   * Connect with the Blockchain.
+   */
   async connect () {
     return new Promise((resolve, reject) => {
       this.providerConnection = new mxw.providers.JsonRpcProvider(this.nodeProvider.connection, this.nodeProvider)
@@ -187,6 +197,12 @@ module.exports = class LorenaMaxonrow {
       })
   }
 
+  /**
+   * Receives a 16 bytes DID string and extends it to 65 bytes Hash
+   *
+   * @param {string} did DID
+   * @param {string} pubKey Public Key to register into the DID
+   */
   async registerDid (did, pubKey) {
     const key = this.createKeyTokenItem('keyId', pubKey)
     // console.log('your key is:', key)
@@ -198,18 +214,47 @@ module.exports = class LorenaMaxonrow {
     })
   }
 
-  async getActualKey (did) {
+  /**
+   * Returns the actual Key.
+   *
+   * @param {string} did DID
+   * @returns {string} The active key
+   */
+  async getActualDidKey (did) {
 
   }
 
-  async registerDidDocHash (did, diddocHash) {
-
+  /**
+   * Registers a Hash (of the DID document) for a DID
+   *
+   * @param {string} did DID
+   * @param {string} diddocHash Did document Hash
+   */
+  async registerDidDocument (did, diddocHash) {
   }
 
+  /**
+   * Retrieves the Hash of a Did Document for a DID
+   *
+   * @param {string} did DID
+   * @returns {string} the Hash
+   */
+  async getDidDocHash (did) {
+  }
+
+  /**
+   * Rotate Key : changes the actual key for a DID
+   *
+   * @param {string} did DID
+   * @param {string} pubKey Public Key to register into the DID
+   */
   async rotateKey (did, newPubKey) {
 
   }
 
+  /**
+   * Disconnect from Blockchain.
+   */
   disconnect () {
     if (this.providerConnection) {
       this.providerConnection.removeAllListeners()
