@@ -64,6 +64,9 @@ describe('Maxonrow Blockchain Tests', function () {
     did = await generateDid(didString)
     pubKey = await generatePublicKey(did)
     maxBlockApi = new LorenaMaxonrow(nodeProvider)
+  })
+
+  xit('should connect to the MaxonRow endpoint', async () => {
     await maxBlockApi.connect()
   })
 
@@ -74,7 +77,7 @@ describe('Maxonrow Blockchain Tests', function () {
   //   expect(didGenTest).equal(caelumHashedDid)
   // })
 
-  it('sohuld create a Key NonFungibleTokenItem', async () => {
+  xit('should create a Key NonFungibleTokenItem', async () => {
     const myKey = maxBlockApi.createKeyTokenItem('keyId-1', pubKey)
     console.log('My key is: ', myKey)
   })
@@ -89,7 +92,7 @@ describe('Maxonrow Blockchain Tests', function () {
   // })
 
   // it('Register a DID', async () => {
-  //   // SetKeyring and Connect are being called here because mocha Before function is not waiting fro Keyring WASM library load
+  //   // SetKeyring and Connect are being called here because mocha Before function is not waiting for Keyring WASM library load
   //   maxBlockApi = new LorenaMaxonrow(nodeProvider)
   //   await maxBlockApi.connect()
   //   maxBlockApi.setKeyring('Alice')

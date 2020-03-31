@@ -1,0 +1,12 @@
+language: node_js
+node_js:
+  - "12"
+env:
+  - EndpointUrl=url://tobedetermined.tbd/
+install:
+  - npm install
+script:
+  - npm run lint
+  - npm test
+after_script:
+  - npm run coveralls
