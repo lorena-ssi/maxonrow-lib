@@ -246,7 +246,7 @@ module.exports = class LorenaMaxonrow extends BlockchainInterface {
    * Rotate Key : changes the actual key for a DID
    *
    * @param {string} did DID
-   * @param {string} pubKey Public Key to register into the DID
+   * @param {string} newPubKey Public Key to register into the DID
    */
   async rotateKey (did, newPubKey) {
 
