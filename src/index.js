@@ -129,14 +129,14 @@ module.exports = class LorenaMaxonrow {
     // Convert pubKey to vec[u8]
     const arr = Utils.toUTF8Array(pubKey)
 
-    console.log('HasheddSid:' + hashedDID + ' UTF8 pubkey arr:' + arr)
+    console.log('HashedSid:' + hashedDID + ' UTF8 pubkey arr:' + arr)
 
     // Mutable data
     const metadata = {}
 
     // Immutable data
     const properties = {
-      did,
+      did
       // ToDo
       // keyIndex: keyId
     }
@@ -189,7 +189,7 @@ module.exports = class LorenaMaxonrow {
 
   async registerDid (did, pubKey) {
     const key = this.createKeyTokenItem('keyId', pubKey)
-    // console.log('yout key is:', key)
+    // console.log('your key is:', key)
 
     const minterIdentity = new nonFungibleToken.NonFungibleToken('LORID', this.issuer)
 
@@ -211,6 +211,8 @@ module.exports = class LorenaMaxonrow {
   }
 
   disconnect () {
-    this.providerConnection.removeAllListeners()
+    if (this.providerConnection) {
+      this.providerConnection.removeAllListeners()
+    }
   }
 }
