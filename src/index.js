@@ -217,18 +217,18 @@ module.exports = class LorenaMaxonrow extends BlockchainInterface {
    * @param {string} did DID
    * @returns {string} The active key
    */
-  /* async getActualDidKey(did) {
-    NonFungibleTokenItem.fromSymbol('LORDID', did, this.issuer).then((nftItem) => {
-      nftItemMinted = nftItem;
-      console.log(nftItemMinted.parent.state); // check item's parent information
-      // Update the Metadata
-      let newMetadata = "updated metadata";
+  async getActualDidKey (did) {
+    // NonFungibleTokenItem.fromSymbol('LORDID', did, this.issuer).then((nftItem) => {
+    //   nftItemMinted = nftItem
+    //   console.log(nftItemMinted.parent.state) // check item's parent information
+    //   // Update the Metadata
+    //   const newMetadata = 'updated metadata'
 
-      return nftItemMinted.updateMetadata(newMetadata).then((receipt) => {
-        console.log(receipt); //do something
-      });
-    })
-  } */
+    //   return nftItemMinted.updateMetadata(newMetadata).then((receipt) => {
+    //     console.log(receipt) // do something
+    //   })
+    // })
+  }
 
   /**
    * Registers a Hash (of the DID document) for a DID
