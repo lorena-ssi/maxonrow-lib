@@ -132,18 +132,7 @@ module.exports = class LorenaMaxonrow extends BlockchainInterface {
     }
   }
 
-  async createIdentityToken (did, pubKey) {
-    // Convert did string to hashed did
-    const hashedDID = Utils.hashCode(did)
-
-    // Convert pubKey to vec[u8]
-    const arr = Utils.toUTF8Array(pubKey)
-
-    console.log('HashedSid:' + hashedDID + ' UTF8 pubkey arr:' + arr)
-
-    // Mutable data
-    const metadata = {}
-
+  async createLorenaDidToken (did, pubKey) {
     // Immutable data
     const properties = {
       did
@@ -153,13 +142,13 @@ module.exports = class LorenaMaxonrow extends BlockchainInterface {
 
     this.nonFungibleTokenProperties = {
       name: 'Decentralised identifier ',
-      symbol: 'LORID', // pongo identity por que el DDID ya lo han creado ellos.... (además tendremos que añadirlo)
+      symbol: 'LORDID', // pongo identity por que el DDID ya lo han creado ellos.... (además tendremos que añadirlo)
       fee: {
         to: this.nodeProvider.nonFungibleToken.feeCollector, // feeCollector wallet address
         value: bigNumberify('1')
       },
       properties: JSON.stringify(properties), // immutable
-      metadata: JSON.stringify(metadata) // mutable
+      metadata: ''// JSON.stringify(metadata) // mutable
     }
     return nonFungibleToken
       .NonFungibleToken
@@ -201,17 +190,25 @@ module.exports = class LorenaMaxonrow extends BlockchainInterface {
    * Receives a 16 bytes DID string and extends it to 65 bytes Hash
    *
    * @param {string} did DID
-   * @param {string} pubKey Public Key to register into the DID
+   * @param {string} pubkey Public Key to register into the DID
    */
-  async registerDid (did, pubKey) {
-    const key = this.createKeyTokenItem('keyId', pubKey)
+  async registerDid (did, pubkey) {
+    // Check that DID follows pattern 'did:lor:test:validName'
+    // if (!this.validateDid(hashedDID)) return
+
+    // Convert did string to hashed did
+    const hashedDID = Utils.hashCode(did)
+
+    // Convert pubKey to vec[u8]
+    const arr = Utils.toUTF8Array(pubkey)
+    console.log('HashedDid:' + hashedDID + ' UTF8 pubkey arr:' + arr)
+
+    const key = this.createKeyTokenItem(hashedDID, arr)
     // console.log('your key is:', key)
 
-    const minterIdentity = new nonFungibleToken.NonFungibleToken('LORID', this.issuer)
-
-    return minterIdentity.mint(this.issuer.address, key).then((receipt) => {
-      console.log(receipt) // do something
-    })
+    const minterIdentity = new nonFungibleToken.NonFungibleToken('LORDID', this.issuer)
+    const receipt = minterIdentity.mint(this.issuer.address, key)
+    return receipt
   }
 
   /**
@@ -220,9 +217,18 @@ module.exports = class LorenaMaxonrow extends BlockchainInterface {
    * @param {string} did DID
    * @returns {string} The active key
    */
-  async getActualDidKey (did) {
+  /* async getActualDidKey(did) {
+    NonFungibleTokenItem.fromSymbol('LORDID', did, this.issuer).then((nftItem) => {
+      nftItemMinted = nftItem;
+      console.log(nftItemMinted.parent.state); // check item's parent information
+      // Update the Metadata
+      let newMetadata = "updated metadata";
 
-  }
+      return nftItemMinted.updateMetadata(newMetadata).then((receipt) => {
+        console.log(receipt); //do something
+      });
+    })
+  } */
 
   /**
    * Registers a Hash (of the DID document) for a DID

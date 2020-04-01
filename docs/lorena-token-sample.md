@@ -1,33 +1,23 @@
 # Token sample
 
 ```javascript
-async createIdentityToken (did, pubKey) {
-    // Convert did string to hashed did
-    const hashedDID = Utils.hashCode(did)
-
-    // Convert pubKey to vec[u8]
-    const arr = Utils.toUTF8Array(pubKey)
-
-    console.log('Hasheddid:' + hashedDID + ' UTF8 pubkey arr:' + arr)
-
-    // Mutable data
-    const metadata = {}
-
+async createLorenaDidToken() {
     // Immutable data
     const properties = {
-      did,
-      keyIndex: keyId
+      did
+      // ToDo
+      // keyIndex: keyId
     }
 
     this.nonFungibleTokenProperties = {
       name: 'Decentralised identifier ',
-      symbol: 'LORID', // pongo identity por que el DDID ya lo han creado ellos.... (además tendremos que añadirlo)
+      symbol: 'LORDID', // pongo identity por que el DDID ya lo han creado ellos.... (además tendremos que añadirlo)
       fee: {
         to: this.nodeProvider.nonFungibleToken.feeCollector, // feeCollector wallet address
         value: bigNumberify('1')
       },
       properties: JSON.stringify(properties), // immutable
-      metadata: JSON.stringify(metadata) // mutable
+      metadata: ''//JSON.stringify(metadata) // mutable
     }
     return nonFungibleToken
       .NonFungibleToken
