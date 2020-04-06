@@ -1,24 +1,17 @@
 'use strict'
 
-const BlockchainInterface = require('@lorena-ssi/blockchain-lib')
 const { mxw, utils, nonFungibleToken } = require('mxw-sdk-js')
 const { NonFungibleTokenActions, performNonFungibleTokenStatus } = nonFungibleToken
 const bigNumberify = utils.bigNumberify
-const Utils = require('../src/utils/utils')
+// const Utils = require('../src/utils/utils')
 
 const indent = '     '
 
 /**
  * Javascript Class to interact with Maxonrow Blockchain.
  */
-module.exports = class LorenaMaxonrow extends BlockchainInterface {
-  /**
-   * Constructor
-   *
-   * @param {*} nodeProvider Provider connection information
-   */
+module.exports = class LorenaMaxonrow {
   constructor (nodeProvider) {
-    super()
     this.api = false
     this.keypair = {}
     this.units = 1000000000
@@ -55,9 +48,6 @@ module.exports = class LorenaMaxonrow extends BlockchainInterface {
     }
   }
 
-  /**
-   * Connect with the Blockchain.
-   */
   async connect () {
     return new Promise((resolve, reject) => {
       this.providerConnection = new mxw.providers.JsonRpcProvider(this.nodeProvider.connection, this.nodeProvider)
@@ -114,14 +104,14 @@ module.exports = class LorenaMaxonrow extends BlockchainInterface {
 
     // Mutable data
     const metadata = {
-      diddoc_hash: '',
-      valid_to: ''
+      diddocHash: '',
+      validTo: ''
     }
 
     // Immutable data
     const properties = {
       publicKey: pubKey,
-      valid_from: Date.now().toString()
+      validFrom: Date.now().toString()
     }
 
     return {
@@ -132,23 +122,34 @@ module.exports = class LorenaMaxonrow extends BlockchainInterface {
     }
   }
 
-  async createLorenaDidToken (did, pubKey) {
+  async createIdentityToken (did, pubKey) {
+    // Convert did string to hashed did
+    // const hashedDID = Utils.hashCode(did)
+
+    // Convert pubKey to vec[u8]
+    // const arr = Utils.toUTF8Array(pubKey)
+
+    // console.log('Hasheddid:' + hashedDID + ' UTF8 pubkey arr:' + arr)
+
+    // Mutable data
+    const metadata = {
+      key: '',
+      did
+    }
+
     // Immutable data
     const properties = {
-      did
-      // ToDo
-      // keyIndex: keyId
     }
 
     this.nonFungibleTokenProperties = {
       name: 'Decentralised identifier ',
-      symbol: 'LORDID', // pongo identity por que el DDID ya lo han creado ellos.... (además tendremos que añadirlo)
+      symbol: 'LORDID',
       fee: {
         to: this.nodeProvider.nonFungibleToken.feeCollector, // feeCollector wallet address
         value: bigNumberify('1')
       },
       properties: JSON.stringify(properties), // immutable
-      metadata: ''// JSON.stringify(metadata) // mutable
+      metadata: JSON.stringify(metadata) // mutable
     }
     return nonFungibleToken
       .NonFungibleToken
@@ -186,84 +187,30 @@ module.exports = class LorenaMaxonrow extends BlockchainInterface {
       })
   }
 
-  /**
-   * Receives a 16 bytes DID string and extends it to 65 bytes Hash
-   *
-   * @param {string} did DID
-   * @param {string} pubkey Public Key to register into the DID
-   */
-  async registerDid (did, pubkey) {
-    // Check that DID follows pattern 'did:lor:test:validName'
-    // if (!this.validateDid(hashedDID)) return
-
-    // Convert did string to hashed did
-    const hashedDID = Utils.hashCode(did)
-
-    // Convert pubKey to vec[u8]
-    const arr = Utils.toUTF8Array(pubkey)
-    console.log('HashedDid:' + hashedDID + ' UTF8 pubkey arr:' + arr)
-
-    const key = this.createKeyTokenItem(hashedDID, arr)
+  async registerDid (did, pubKey) {
+    const key = this.createKeyTokenItem('keyId', pubKey)
     // console.log('your key is:', key)
 
-    const minterIdentity = new nonFungibleToken.NonFungibleToken('LORDID', this.issuer)
-    const receipt = minterIdentity.mint(this.issuer.address, key)
-    return receipt
+    const minterIdentity = new nonFungibleToken.NonFungibleToken(this.nonFungibleTokenProperties.symbol, this.issuer)
+
+    return minterIdentity.mint(this.issuer.address, key).then((receipt) => {
+      console.log(receipt) // do something
+    })
   }
 
-  /**
-   * Returns the actual Key.
-   *
-   * @param {string} did DID
-   * @returns {string} The active key
-   */
-  async getActualDidKey (did) {
-    // NonFungibleTokenItem.fromSymbol('LORDID', did, this.issuer).then((nftItem) => {
-    //   nftItemMinted = nftItem
-    //   console.log(nftItemMinted.parent.state) // check item's parent information
-    //   // Update the Metadata
-    //   const newMetadata = 'updated metadata'
+  async getActualKey (did) {
 
-    //   return nftItemMinted.updateMetadata(newMetadata).then((receipt) => {
-    //     console.log(receipt) // do something
-    //   })
-    // })
   }
 
-  /**
-   * Registers a Hash (of the DID document) for a DID
-   *
-   * @param {string} did DID
-   * @param {string} diddocHash Did document Hash
-   */
-  async registerDidDocument (did, diddocHash) {
+  async registerDidDocHash (did, diddocHash) {
+
   }
 
-  /**
-   * Retrieves the Hash of a Did Document for a DID
-   *
-   * @param {string} did DID
-   * @returns {string} the Hash
-   */
-  async getDidDocHash (did) {
-  }
-
-  /**
-   * Rotate Key : changes the actual key for a DID
-   *
-   * @param {string} did DID
-   * @param {string} newPubKey Public Key to register into the DID
-   */
   async rotateKey (did, newPubKey) {
 
   }
 
-  /**
-   * Disconnect from Blockchain.
-   */
   disconnect () {
-    if (this.providerConnection) {
-      this.providerConnection.removeAllListeners()
-    }
+    this.providerConnection.removeAllListeners()
   }
 }

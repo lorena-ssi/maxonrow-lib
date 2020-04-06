@@ -64,42 +64,58 @@ describe('Maxonrow Blockchain Tests', function () {
     did = await generateDid(didString)
     pubKey = await generatePublicKey(did)
     maxBlockApi = new LorenaMaxonrow(nodeProvider)
-  })
-  
-  // TODO: move to BlockchainInterface
-  // it('Generate a DID and publicKey', async () => {
-  //   const didGenTal(cest = await generateDid('caelumlabs')
-  //   const pubKeyGenTest = await generatePublicKey(didGenTest)
-  //   console.log('didGen: ' + didGenTest + ' pubkey: ' + pubKeyGenTest)
-  //   expect(didGenTest).equaelumHashedDid)
-  // })
-  
-  it('should connect to the MaxonRow endpoint', async () => {
     await maxBlockApi.connect()
   })
-  
-  it('Create a Lorena DID using Non Fungible Token', async () => {
+
+  // it('Generate a DID and publicKey', async () => {
+  //   const didGenTest = await generateDid('caelumlabs')
+  //   const pubKeyGenTest = await generatePublicKey(didGenTest)
+  //   console.log('didGen: ' + didGenTest + ' pubkey: ' + pubKeyGenTest)
+  //   expect(didGenTest).equal(caelumHashedDid)
+  // })
+
+  it('sohuld create a Key NonFungibleTokenItem', async () => {
+    const keyId = 'keyId-1'
+    const myKey = maxBlockApi.createKeyTokenItem(keyId, pubKey)
+    console.log('My key is: ', myKey)
+    expect(myKey).to.be.an('object')
+    expect(myKey).to.have.any.keys(
+      'symbol',
+      'itemID',
+      'properties',
+      'metadata'
+    )
+    expect(myKey.symbol).to.eq('LORKEY')
+    expect(myKey.itemID).to.eq('#' + keyId)
+    
+    const jsonProperties = JSON.parse(myKey.properties)
+    console.log(jsonProperties)
+    expect(jsonProperties).to.be.an('object')
+    expect(jsonProperties).to.have.any.keys(
+      'publicKey',
+      'validFrom'
+    )
+    expect(jsonProperties.publicKey).to.eq(pubKey)
+    
+    expect(myKey.metadata).to.be.a('string')
+    const metadata = { diddocHash: '', validTo: '' }
+    expect(myKey.metadata).to.eq(JSON.stringify(metadata))
+  })
+
+  it('Create Non Fungible Token', async () => {
     try {
-      await maxBlockApi.createLorenaDidToken(did, pubKey)
+      await maxBlockApi.createIdentityToken()
     } catch (err) {
       // TODO: use MaxonRow errors
       expect(err.info.message).to.eq('Token already exists: LORDID')
     }
   })
 
-  it('Register a DID', async () => {
-    // SetKeyring and Connect are being called here because mocha Before function is not waiting for Keyring WASM library load
-    // maxBlockApi = new LorenaMaxonrow(nodeProvider)
-    // await maxBlockApi.connect()
-    // maxBlockApi.setKeyring('Alice')
-    await maxBlockApi.registerDid(did, pubKey)
-  })
-
-  xit('should create a Key NonFungibleTokenItem', async () => {
-    const myKey = maxBlockApi.createKeyTokenItem('keyId-1', pubKey)
-    console.log('My key is: ', myKey)
-  })
-
+  // it('Register a DID', async () => {
+  //   // SetKeyring and Connect are being called here because mocha Before function is not waiting fro Keyring WASM library load
+  //   maxBlockApi.setKeyring('Alice')
+  //   await maxBlockApi.registerDid(did, pubKey)
+  // })
 
   // it('Check DID registration', async () => {
   //     const registeredDid = await subscribe2RegisterEvents(maxBlockApi.api, 'DidRegistered')
