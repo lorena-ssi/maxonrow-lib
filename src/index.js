@@ -1,7 +1,7 @@
 'use strict'
 
 const { mxw, utils, nonFungibleToken } = require('mxw-sdk-js')
-const { NonFungibleTokenActions, performNonFungibleTokenStatus } = nonFungibleToken
+const { NonFungibleTokenActions } = nonFungibleToken
 const bigNumberify = utils.bigNumberify
 // const Utils = require('../src/utils/utils')
 
@@ -11,32 +11,15 @@ const indent = '     '
  * Javascript Class to interact with Maxonrow Blockchain.
  */
 module.exports = class LorenaMaxonrow {
-  constructor (nodeProvider) {
+  constructor (symbol, mnemonic, nodeProvider) {
     this.api = false
     this.keypair = {}
     this.units = 1000000000
     this.nodeProvider = {
-      connection: {
-        url: 'localhost',
-        timeout: 60000
-      },
-      trace: {
-        silent: false,
-        silentRpc: false
-      },
-      chainId: 'unknown',
-      name: 'mxw',
-      kyc: {
-        issuer: 'dunno'
-      },
-      nonFungibleToken: {
-        provider: 'dunno',
-        issuer: 'dunno',
-        middleware: 'dunno',
-        feeCollector: 'dunno'
-      },
       ...nodeProvider
     }
+    this.symbol = symbol
+    this.mnemonic = mnemonic
 
     this.defaultOverrides = {
       logSignaturePayload: (payload) => {
@@ -49,7 +32,7 @@ module.exports = class LorenaMaxonrow {
   }
 
   async connect () {
-    return new Promise((resolve, reject) => {
+    return Promise.resolve().then(() => {
       this.providerConnection = new mxw.providers.JsonRpcProvider(this.nodeProvider.connection, this.nodeProvider)
       const silentRpc = this.nodeProvider.trace.silentRpc
       this.providerConnection
@@ -67,27 +50,23 @@ module.exports = class LorenaMaxonrow {
           }
         })
 
-      try {
-        const silent = this.nodeProvider.trace.silent
-        const wallet = mxw.Wallet.fromMnemonic(this.nodeProvider.kyc.issuer).connect(this.providerConnection)
-        if (!silent) console.log(indent, 'Wallet:', JSON.stringify({ address: wallet.address, mnemonic: wallet.mnemonic }))
+      const silent = this.nodeProvider.trace.silent
+      this.wallet = mxw.Wallet.fromMnemonic(this.mnemonic).connect(this.providerConnection)
+      if (!silent) console.log(indent, 'Wallet:', JSON.stringify({ address: this.wallet.address, mnemonic: this.wallet.mnemonic }))
 
-        const provider = mxw.Wallet.fromMnemonic(this.nodeProvider.nonFungibleToken.provider).connect(this.providerConnection)
-        if (!silent) console.log(indent, 'Provider:', JSON.stringify({ address: provider.address, mnemonic: provider.mnemonic }))
+      this.provider = mxw.Wallet.fromMnemonic(this.nodeProvider.nonFungibleToken.provider).connect(this.providerConnection)
+      if (!silent) console.log(indent, 'Provider:', JSON.stringify({ address: this.provider.address, mnemonic: this.provider.mnemonic }))
 
-        this.issuer = mxw.Wallet.fromMnemonic(this.nodeProvider.nonFungibleToken.issuer).connect(this.providerConnection)
-        if (!silent) console.log(indent, 'Issuer:', JSON.stringify({ address: this.issuer.address, mnemonic: this.issuer.mnemonic }))
+      this.issuer = mxw.Wallet.fromMnemonic(this.nodeProvider.nonFungibleToken.issuer).connect(this.providerConnection)
+      if (!silent) console.log(indent, 'Issuer:', JSON.stringify({ address: this.issuer.address, mnemonic: this.issuer.mnemonic }))
 
-        const middleware = mxw.Wallet.fromMnemonic(this.nodeProvider.nonFungibleToken.middleware).connect(this.providerConnection)
-        if (!silent) console.log(indent, 'Middleware:', JSON.stringify({ address: middleware.address, mnemonic: middleware.mnemonic }))
+      this.middleware = mxw.Wallet.fromMnemonic(this.nodeProvider.nonFungibleToken.middleware).connect(this.providerConnection)
+      if (!silent) console.log(indent, 'Middleware:', JSON.stringify({ address: this.middleware.address, mnemonic: this.middleware.mnemonic }))
 
-        if (!silent) console.log(indent, 'Fee collector:', JSON.stringify({ address: this.nodeProvider.nonFungibleToken.feeCollector }))
-
-        return resolve()
-      } catch (error) {
-        console.log(error)
-        return reject(error)
-      }
+      if (!silent) console.log(indent, 'Fee collector:', JSON.stringify({ address: this.nodeProvider.nonFungibleToken.feeCollector }))
+    }).catch(error => {
+      console.log(error)
+      throw error
     })
   }
 
@@ -115,7 +94,7 @@ module.exports = class LorenaMaxonrow {
     }
 
     return {
-      symbol: 'LORKEY',
+      symbol: this.symbol,
       itemID: '#' + keyId,
       properties: JSON.stringify(properties), // immutable
       metadata: JSON.stringify(metadata)
@@ -143,7 +122,7 @@ module.exports = class LorenaMaxonrow {
 
     this.nonFungibleTokenProperties = {
       name: 'Decentralised identifier ',
-      symbol: 'LORDID',
+      symbol: this.symbol,
       fee: {
         to: this.nodeProvider.nonFungibleToken.feeCollector, // feeCollector wallet address
         value: bigNumberify('1')
@@ -155,7 +134,7 @@ module.exports = class LorenaMaxonrow {
       .NonFungibleToken
       .create(
         this.nonFungibleTokenProperties,
-        this.issuer, // this.nodeProvider.nonFungibleToken.issuer,
+        this.wallet, // This is the token owner wallet
         this.defaultOverrides
       )
       .then((token) => {
@@ -168,33 +147,44 @@ module.exports = class LorenaMaxonrow {
               { action: NonFungibleTokenActions.acceptOwnership, feeName: 'default' } // Should not be possible
             ],
             endorserList: [],
-            mintLimit: false,
+            mintLimit: 0,
             transferLimit: 0,
             burnable: false,
             transferable: false,
             modifiable: true,
             pub: true // not public
           }
-          return performNonFungibleTokenStatus(
-            this.nonFungibleTokenProperties.symbol,
-            token.NonFungibleToken.approveNonFungibleToken,
-            overrides
-          )
-            .then((receipt) => {
-              console.log(receipt) // do something
+
+          // For the approval process, we need 3 system wallets to sign the approval transaction.
+          // Those 3 system wallets should keep in SECRET and AVOID EXPOSE to public
+          // 1st signer: Provider wallet sign the approval transaction
+          return nonFungibleToken.NonFungibleToken.approveNonFungibleToken(this.symbol, this.provider, overrides).then((transaction) => {
+            // 2nd signer: Issuer wallet sign the approval transaction
+            return nonFungibleToken.NonFungibleToken.signNonFungibleTokenStatusTransaction(transaction, this.issuer)
+          }).then((transaction) => {
+            // 3rd signer: Middleware wallet sign the approval transaction
+            return nonFungibleToken.NonFungibleToken.sendNonFungibleTokenStatusTransaction(transaction, this.middleware)
+          }).then(() => {
+            // Refresh the token details from blockchain after approved
+            return token.refresh().then(() => {
+              // Keep this token object for later use, bear in mind the token only needed to create once and use for many times
+              // To get back the approved token, call loadIdentityToken
+              this.token = token
             })
+          })
         }
       })
   }
 
   async registerDid (did, pubKey) {
-    const key = this.createKeyTokenItem('keyId', pubKey)
-    // console.log('your key is:', key)
+    const key = this.createKeyTokenItem(did, pubKey)
 
-    const minterIdentity = new nonFungibleToken.NonFungibleToken(this.nonFungibleTokenProperties.symbol, this.issuer)
-
-    return minterIdentity.mint(this.issuer.address, key).then((receipt) => {
-      console.log(receipt) // do something
+    return nonFungibleToken.NonFungibleToken.fromSymbol(this.symbol, this.wallet).then((minterIdentity) => {
+      // Mint to this wallet address
+      return minterIdentity.mint(this.wallet.address, key).then((receipt) => {
+        console.log(receipt) // do something
+        return receipt
+      })
     })
   }
 

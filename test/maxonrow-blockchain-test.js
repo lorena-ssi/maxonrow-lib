@@ -26,7 +26,7 @@ const nodeProvider = {
     timeout: 60000
   },
   trace: {
-    silent: true,
+    silent: false,
     silentRpc: true
   },
   chainId: process.env.ChainId,
@@ -34,8 +34,8 @@ const nodeProvider = {
   kyc: { issuer: process.env.KycIssuer },
   nonFungibleToken: {
     provider: process.env.ProviderWalletMnemonic || 'dunno',
-    issuer: process.env.ProviderWalletMnemonic || 'dunno',
-    middleware: process.env.IssuerWalletMnemonic || 'dunno',
+    issuer: process.env.IssuerWalletMnemonic || 'dunno',
+    middleware: process.env.MiddlewareWalletMnemonic || 'dunno',
     feeCollector: process.env.FeeCollectorWalletAddr || 'dunno'
   }
 }
@@ -57,13 +57,16 @@ const generatePublicKey = async (did) => {
 
 describe('Maxonrow Blockchain Tests', function () {
   let maxBlockApi
-  let did, pubKey
+  let symbol, did, pubKey
+  // Someone wallet that has been passed kyc
+  let mnemonic = "pill maple dutch predict bulk goddess nice left paper heart loan fresh"
 
-  before('Lorena Substrate Test Preparation', async () => {
+  before('Lorena Maxonrow Test Preparation', async () => {
+    symbol = "LOR" + Utils.makeUniqueString(4)
     const didString = Utils.makeUniqueString(16)
     did = await generateDid(didString)
     pubKey = await generatePublicKey(did)
-    maxBlockApi = new LorenaMaxonrow(nodeProvider)
+    maxBlockApi = new LorenaMaxonrow(symbol, mnemonic, nodeProvider)
     await maxBlockApi.connect()
   })
 
@@ -73,6 +76,16 @@ describe('Maxonrow Blockchain Tests', function () {
   //   console.log('didGen: ' + didGenTest + ' pubkey: ' + pubKeyGenTest)
   //   expect(didGenTest).equal(caelumHashedDid)
   // })
+
+  it('Create Non Fungible Token', async () => {
+    try {
+      await maxBlockApi.createIdentityToken(symbol)
+    } catch (err) {
+      console.log("ERROR", err);
+      // TODO: use MaxonRow errors
+      // expect(err.info.message).to.eq('Token already exists: ' + symbol)
+    }
+  })
 
   it('sohuld create a Key NonFungibleTokenItem', async () => {
     const keyId = 'keyId-1'
@@ -85,9 +98,9 @@ describe('Maxonrow Blockchain Tests', function () {
       'properties',
       'metadata'
     )
-    expect(myKey.symbol).to.eq('LORKEY')
+    expect(myKey.symbol).to.eq(symbol)
     expect(myKey.itemID).to.eq('#' + keyId)
-    
+
     const jsonProperties = JSON.parse(myKey.properties)
     console.log(jsonProperties)
     expect(jsonProperties).to.be.an('object')
@@ -96,26 +109,20 @@ describe('Maxonrow Blockchain Tests', function () {
       'validFrom'
     )
     expect(jsonProperties.publicKey).to.eq(pubKey)
-    
+
     expect(myKey.metadata).to.be.a('string')
     const metadata = { diddocHash: '', validTo: '' }
     expect(myKey.metadata).to.eq(JSON.stringify(metadata))
   })
 
-  it('Create Non Fungible Token', async () => {
-    try {
-      await maxBlockApi.createIdentityToken()
-    } catch (err) {
-      // TODO: use MaxonRow errors
-      expect(err.info.message).to.eq('Token already exists: LORDID')
-    }
+  it('Register a DID', async () => {
+    // SetKeyring and Connect are being called here because mocha Before function is not waiting fro Keyring WASM library load
+    // maxBlockApi.setKeyring('Alice')
+    let receipt = await maxBlockApi.registerDid(did, pubKey)
+    console.log("RECEIPT:", JSON.stringify(receipt));
+    expect(receipt).to.be.exist;
+    expect(receipt.status).to.eq(1);
   })
-
-  // it('Register a DID', async () => {
-  //   // SetKeyring and Connect are being called here because mocha Before function is not waiting fro Keyring WASM library load
-  //   maxBlockApi.setKeyring('Alice')
-  //   await maxBlockApi.registerDid(did, pubKey)
-  // })
 
   // it('Check DID registration', async () => {
   //     const registeredDid = await subscribe2RegisterEvents(maxBlockApi.api, 'DidRegistered')
