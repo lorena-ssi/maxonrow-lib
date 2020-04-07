@@ -1,7 +1,7 @@
 'use strict'
 
 const { mxw, utils, nonFungibleToken } = require('mxw-sdk-js')
-const { NonFungibleTokenActions, performNonFungibleTokenStatus } = nonFungibleToken
+const { NonFungibleTokenActions } = nonFungibleToken
 const bigNumberify = utils.bigNumberify
 // const Utils = require('../src/utils/utils')
 
@@ -16,25 +16,6 @@ module.exports = class LorenaMaxonrow {
     this.keypair = {}
     this.units = 1000000000
     this.nodeProvider = {
-      connection: {
-        url: 'localhost',
-        timeout: 60000
-      },
-      trace: {
-        silent: false,
-        silentRpc: false
-      },
-      chainId: 'unknown',
-      name: 'mxw',
-      kyc: {
-        issuer: 'dunno'
-      },
-      nonFungibleToken: {
-        provider: 'dunno',
-        issuer: 'dunno',
-        middleware: 'dunno',
-        feeCollector: 'dunno'
-      },
       ...nodeProvider
     }
 
