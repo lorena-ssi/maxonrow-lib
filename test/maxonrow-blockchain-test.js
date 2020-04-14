@@ -57,12 +57,13 @@ const generatePublicKey = async (did) => {
 
 describe('Maxonrow Blockchain Tests', function () {
   let maxBlockApi
-  let symbol, did, pubKey
+  let symbol, did, pubKey, keyId
   // Someone wallet that has been passed kyc
   let mnemonic = "pill maple dutch predict bulk goddess nice left paper heart loan fresh"
 
   before('Lorena Maxonrow Test Preparation', async () => {
-    symbol = "LOR" + Utils.makeUniqueString(4)
+    keyId = 'keyId-1'
+    symbol = "DID"
     const didString = Utils.makeUniqueString(16)
     did = await generateDid(didString)
     pubKey = await generatePublicKey(did)
@@ -70,26 +71,17 @@ describe('Maxonrow Blockchain Tests', function () {
     await maxBlockApi.connect()
   })
 
-  // it('Generate a DID and publicKey', async () => {
-  //   const didGenTest = await generateDid('caelumlabs')
-  //   const pubKeyGenTest = await generatePublicKey(didGenTest)
-  //   console.log('didGen: ' + didGenTest + ' pubkey: ' + pubKeyGenTest)
-  //   expect(didGenTest).equal(caelumHashedDid)
+  // it('Create Non Fungible Token', async () => {
+  //   try {
+  //     await maxBlockApi.createIdentityToken(symbol)
+  //   } catch (err) {
+  //     console.log("ERROR", err);
+  //     // TODO: use MaxonRow errors
+  //   }
   // })
 
-  it('Create Non Fungible Token', async () => {
-    try {
-      await maxBlockApi.createIdentityToken(symbol)
-    } catch (err) {
-      console.log("ERROR", err);
-      // TODO: use MaxonRow errors
-      // expect(err.info.message).to.eq('Token already exists: ' + symbol)
-    }
-  })
-
-  it('sohuld create a Key NonFungibleTokenItem', async () => {
-    const keyId = 'keyId-1'
-    const myKey = maxBlockApi.createKeyTokenItem(keyId, pubKey)
+  it('Should create a Key NonFungibleTokenItem', async () => {
+    const myKey = maxBlockApi.createKeyTokenItem(did, keyId, pubKey)
     console.log('My key is: ', myKey)
     expect(myKey).to.be.an('object')
     expect(myKey).to.have.any.keys(
@@ -99,7 +91,7 @@ describe('Maxonrow Blockchain Tests', function () {
       'metadata'
     )
     expect(myKey.symbol).to.eq(symbol)
-    expect(myKey.itemID).to.eq('#' + keyId)
+    expect(myKey.itemID).to.eq(did)
 
     const jsonProperties = JSON.parse(myKey.properties)
     console.log(jsonProperties)
@@ -116,34 +108,20 @@ describe('Maxonrow Blockchain Tests', function () {
   })
 
   it('Register a DID', async () => {
-    // SetKeyring and Connect are being called here because mocha Before function is not waiting fro Keyring WASM library load
-    // maxBlockApi.setKeyring('Alice')
-    let receipt = await maxBlockApi.registerDid(did, pubKey)
+    let receipt = await maxBlockApi.registerDid(did, keyId, pubKey)
     console.log("RECEIPT:", JSON.stringify(receipt));
     expect(receipt).to.be.exist;
     expect(receipt.status).to.eq(1);
   })
 
-  // it('Check DID registration', async () => {
-  //     const registeredDid = await subscribe2RegisterEvents(maxBlockApi.api, 'DidRegistered')
-  //     console.log('Registered DID:', registeredDid)
-  //     maxBlockApi.api.query.system.events()
-  //     console.log('Unsubscribed')
-  //     const hexWithPadding = registeredDid.split('x')[1]
-  //     const hex = hexWithPadding.substring(0, 16)
-  //     // console.log('HEX', hex)
-  //     console.log('UTF8', Buffer.from(hex, 'hex').toString('utf8'))
-  //     expect(hex).equal(did)
-  // })
-
-  // it('GetKey from a DID', async () => {
-  //     maxBlockApi.getActualDidKey(did).then((key) => {
-  //         console.log('Did: ' + did + ' Returned key@: ' + key)
-  //         // console.log('HEX', hex)
-  //         // console.log('UTF8', Buffer.from(hex, 'hex').toString('utf8'))
-  //         expect(key).equal(pubKey)
-  //     })
-  // })
+  it('GetKey from a DID', async () => {
+      maxBlockApi.getActualKey(did, keyId).then((key) => {
+          console.log('Did: ' + did + ' Returned key@: ' + key)
+          // console.log('HEX', hex)
+          // console.log('UTF8', Buffer.from(hex, 'hex').toString('utf8'))
+          // expect(key).equal(pubKey)
+      })
+  })
 
   // it('Register a Did Doc Hash', async () => {
   //   const randomHash = Utils.makeUniqueString.toString(16)
