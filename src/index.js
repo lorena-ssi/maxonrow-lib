@@ -70,7 +70,7 @@ module.exports = class LorenaMaxonrow {
     })
   }
 
-  createKeyTokenItem (did, keyIdReceived, pubKeyReceived) {
+  createKeyTokenItem (did, pubKeyReceived) {
     /**
      * Substrate Key:
      * Key {
@@ -81,17 +81,28 @@ module.exports = class LorenaMaxonrow {
      * }
      */
 
+    // Convert did string to hashed did
+    // const hashedDID = Utils.hashCode(did)
+
+    // Convert pubKey to vec[u8]
+    // const arr = Utils.toUTF8Array(pubKey)
+
+    // console.log('Hasheddid:' + hashedDID + ' UTF8 pubkey arr:' + arr)
+
+    const keyStruct = {
+      key: pubKeyReceived,
+      valid_from: Date.now().toString(),
+      valid_to: '0'
+    }
+
     // Mutable data
     const metadata = {
-      diddocHash: '',
-      validTo: ''
+      publicKeys: [keyStruct],
+      diddocHash: ''
     }
 
     // Immutable data
     const properties = {
-      keyId: keyIdReceived,
-      publicKey: pubKeyReceived,
-      validFrom: Date.now().toString()
     }
 
     return {
@@ -103,32 +114,15 @@ module.exports = class LorenaMaxonrow {
   }
 
   async createIdentityToken () {
-    // Convert did string to hashed did
-    // const hashedDID = Utils.hashCode(did)
-
-    // Convert pubKey to vec[u8]
-    // const arr = Utils.toUTF8Array(pubKey)
-
-    // console.log('Hasheddid:' + hashedDID + ' UTF8 pubkey arr:' + arr)
-
-    // Mutable data
-    const metadata = {
-      key: ''
-    }
-
-    // Immutable data
-    const properties = {
-    }
-
     this.nonFungibleTokenProperties = {
-      name: 'Decentralised identifier ',
+      name: 'Decentralised identifier Test',
       symbol: this.symbol,
       fee: {
         to: this.nodeProvider.nonFungibleToken.feeCollector, // feeCollector wallet address
         value: bigNumberify('1')
       },
-      properties: JSON.stringify(properties), // immutable
-      metadata: JSON.stringify(metadata) // mutable
+      metadata: 'Wallet able to manage their own metadata',
+      properties: 'Decentralised identifier'
     }
     return nonFungibleToken
       .NonFungibleToken
@@ -150,7 +144,7 @@ module.exports = class LorenaMaxonrow {
             mintLimit: 0,
             transferLimit: 0,
             burnable: false,
-            transferable: false,
+            transferable: true,
             modifiable: true,
             pub: true // not public
           }
@@ -176,8 +170,8 @@ module.exports = class LorenaMaxonrow {
       })
   }
 
-  async registerDid (did, keyId, pubKey) {
-    const key = this.createKeyTokenItem(did, keyId, pubKey)
+  async registerDid (did, pubKey) {
+    const key = this.createKeyTokenItem(did, pubKey)
 
     return nonFungibleToken.NonFungibleToken.fromSymbol(this.symbol, this.wallet).then((minterIdentity) => {
       // Mint to this wallet address
@@ -188,18 +182,34 @@ module.exports = class LorenaMaxonrow {
     })
   }
 
-  async getActualKey (did, keyId) {
+  async getActualKey (did) {
     mxw.nonFungibleToken.NonFungibleToken.fromSymbol(this.symbol, did, this.issuer).then((token) => {
       console.log(JSON.stringify(token))
     })
   }
 
   async registerDidDocHash (did, diddocHash) {
+    const currentTokenItem = mxw.nonFungibleToken.NonFungibleToken.fromSymbol(this.symbol, did, this.issuer).then((token) => {
+      console.log(JSON.stringify(token))
+    })
 
+    currentTokenItem.metadata.diddocHash = diddocHash
+
+    this.token.updateMetadata(currentTokenItem.metadata).then(() => {
+      console.log('Diddochash updated!')
+    })
   }
 
   async rotateKey (did, newPubKey) {
+    const currentTokenItem = mxw.nonFungibleToken.NonFungibleToken.fromSymbol(this.symbol, did, this.issuer).then((token) => {
+      console.log(JSON.stringify(token))
+    })
 
+    currentTokenItem.metadata.pubKey = newPubKey
+
+    this.token.updateMetadata(currentTokenItem.metadata).then(() => {
+      console.log('PublicKey updated!')
+    })
   }
 
   disconnect () {

@@ -57,13 +57,12 @@ const generatePublicKey = async (did) => {
 
 describe('Maxonrow Blockchain Tests', function () {
   let maxBlockApi
-  let symbol, did, pubKey, keyId
+  let symbol, did, pubKey
   // Someone wallet that has been passed kyc
-  let mnemonic = "pill maple dutch predict bulk goddess nice left paper heart loan fresh"
+  const mnemonic = 'pill maple dutch predict bulk goddess nice left paper heart loan fresh'
 
   before('Lorena Maxonrow Test Preparation', async () => {
-    keyId = 'keyId-1'
-    symbol = "DID"
+    symbol = 'LOR' + Utils.makeUniqueString(4)
     const didString = Utils.makeUniqueString(16)
     did = await generateDid(didString)
     pubKey = await generatePublicKey(did)
@@ -71,17 +70,18 @@ describe('Maxonrow Blockchain Tests', function () {
     await maxBlockApi.connect()
   })
 
-  // it('Create Non Fungible Token', async () => {
-  //   try {
-  //     await maxBlockApi.createIdentityToken(symbol)
-  //   } catch (err) {
-  //     console.log("ERROR", err);
-  //     // TODO: use MaxonRow errors
-  //   }
-  // })
+  it('Create Non Fungible Token', async () => {
+    try {
+      await maxBlockApi.createIdentityToken(symbol)
+    } catch (err) {
+      console.log('ERROR creating a new NFT Token!!!!!', err)
+      // TODO: use MaxonRow errors
+    }
+    await Utils.sleep(10000)
+  })
 
   it('Should create a Key NonFungibleTokenItem', async () => {
-    const myKey = maxBlockApi.createKeyTokenItem(did, keyId, pubKey)
+    const myKey = maxBlockApi.createKeyTokenItem(did, pubKey)
     console.log('My key is: ', myKey)
     expect(myKey).to.be.an('object')
     expect(myKey).to.have.any.keys(
@@ -93,35 +93,30 @@ describe('Maxonrow Blockchain Tests', function () {
     expect(myKey.symbol).to.eq(symbol)
     expect(myKey.itemID).to.eq(did)
 
-    const jsonProperties = JSON.parse(myKey.properties)
-    console.log(jsonProperties)
-    expect(jsonProperties).to.be.an('object')
-    expect(jsonProperties).to.have.any.keys(
-      'publicKey',
-      'validFrom'
+    const jsonMetadata = JSON.parse(myKey.metadata)
+    expect(jsonMetadata).to.be.an('object')
+    expect(jsonMetadata).to.have.any.keys(
+      'diddocHash'
     )
-    expect(jsonProperties.publicKey).to.eq(pubKey)
-
-    expect(myKey.metadata).to.be.a('string')
-    const metadata = { diddocHash: '', validTo: '' }
-    expect(myKey.metadata).to.eq(JSON.stringify(metadata))
+    expect(jsonMetadata.publicKeys).to.have.be.an('array')
+    expect(jsonMetadata.publicKeys[0].key).to.eq(pubKey)
   })
 
-  it('Register a DID', async () => {
-    let receipt = await maxBlockApi.registerDid(did, keyId, pubKey)
-    console.log("RECEIPT:", JSON.stringify(receipt));
-    expect(receipt).to.be.exist;
-    expect(receipt.status).to.eq(1);
-  })
+  // it('Register a DID', async () => {
+  //   const receipt = await maxBlockApi.registerDid(did, pubKey)
+  //   console.log('RECEIPT:', JSON.stringify(receipt))
+  //   expect(receipt).to.be.exist
+  //   expect(receipt.status).to.eq(1)
+  // })
 
-  it('GetKey from a DID', async () => {
-      maxBlockApi.getActualKey(did, keyId).then((key) => {
-          console.log('Did: ' + did + ' Returned key@: ' + key)
-          // console.log('HEX', hex)
-          // console.log('UTF8', Buffer.from(hex, 'hex').toString('utf8'))
-          // expect(key).equal(pubKey)
-      })
-  })
+  // it('GetKey from a DID', async () => {
+  //     maxBlockApi.getActualKey(did).then((key) => {
+  //         console.log('Did: ' + did + ' Returned key@: ' + key)
+  //         // console.log('HEX', hex)
+  //         // console.log('UTF8', Buffer.from(hex, 'hex').toString('utf8'))
+  //         // expect(key).equal(pubKey)
+  //     })
+  // })
 
   // it('Register a Did Doc Hash', async () => {
   //   const randomHash = Utils.makeUniqueString.toString(16)
