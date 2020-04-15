@@ -144,7 +144,7 @@ module.exports = class LorenaMaxonrow {
             mintLimit: 0,
             transferLimit: 0,
             burnable: false,
-            transferable: true,
+            transferable: false,
             modifiable: true,
             pub: true // not public
           }

@@ -13,13 +13,6 @@ const Utils = require('../src/utils/utils')
 const Zen = require('@lorena-ssi/zenroom-lib')
 const z = new Zen('sha256')
 
-// MaxonRow errors
-// TODO: Should be used when MaxonRow errors are expected
-// const { errors } = require('mxw-sdk-js')
-
-// 'caelumlabs' SHA256 hash
-// const caelumHashedDid = '42dd5715a308829e'
-
 const nodeProvider = {
   connection: {
     url: process.env.EndpointUrl || 'localhost',
@@ -31,7 +24,7 @@ const nodeProvider = {
   },
   chainId: process.env.ChainId,
   name: 'mxw',
-  kyc: { issuer: process.env.KycIssuer },
+  kyc: { issuer: process.env.KycIssuer || dunno },
   nonFungibleToken: {
     provider: process.env.ProviderWalletMnemonic || 'dunno',
     issuer: process.env.IssuerWalletMnemonic || 'dunno',
