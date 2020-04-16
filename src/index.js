@@ -183,32 +183,37 @@ module.exports = class LorenaMaxonrow {
   }
 
   async getActualKey (did) {
-    mxw.nonFungibleToken.NonFungibleToken.fromSymbol(this.symbol, did, this.issuer).then((token) => {
-      console.log(JSON.stringify(token))
+    return mxw.nonFungibleToken.NonFungibleToken.fromSymbol(this.symbol, did, this.wallet).then((tkItem) => {
+      console.log(JSON.stringify(tkItem))
+      return tkItem.metadata.publicKeys[tkItem.metadata.publicKeys.length - 1].key
+      // return tkItem.metadata.publicKeys[0].key
+    })
+  }
+
+  async getDidDocHash (did) {
+    return mxw.nonFungibleToken.NonFungibleToken.fromSymbol(this.symbol, did, this.wallet).then((tkItem) => {
+      console.log(JSON.stringify(tkItem))
+      return tkItem.metadata.diddocHash
     })
   }
 
   async registerDidDocHash (did, diddocHash) {
-    const currentTokenItem = mxw.nonFungibleToken.NonFungibleToken.fromSymbol(this.symbol, did, this.issuer).then((token) => {
-      console.log(JSON.stringify(token))
-    })
-
-    currentTokenItem.metadata.diddocHash = diddocHash
-
-    this.token.updateMetadata(currentTokenItem.metadata).then(() => {
-      console.log('Diddochash updated!')
+    return mxw.nonFungibleToken.NonFungibleToken.fromSymbol(did, this.wallet).then((tkItem) => {
+      console.log(JSON.stringify(tkItem))
+      tkItem.metadata.diddocHash = diddocHash
+      this.token.updateMetadata(tkItem.metadata).then(() => {
+        console.log('Diddochash updated!')
+      })
     })
   }
 
   async rotateKey (did, newPubKey) {
-    const currentTokenItem = mxw.nonFungibleToken.NonFungibleToken.fromSymbol(this.symbol, did, this.issuer).then((token) => {
-      console.log(JSON.stringify(token))
-    })
-
-    currentTokenItem.metadata.pubKey = newPubKey
-
-    this.token.updateMetadata(currentTokenItem.metadata).then(() => {
-      console.log('PublicKey updated!')
+    return mxw.nonFungibleToken.NonFungibleToken.fromSymbol(this.symbol, did, this.wallet).then((tkItem) => {
+      console.log(JSON.stringify(tkItem))
+      tkItem.metadata.pubKey.append(newPubKey)
+      this.token.updateMetadata(tkItem.metadata).then(() => {
+        console.log('PublicKey updated!')
+      })
     })
   }
 

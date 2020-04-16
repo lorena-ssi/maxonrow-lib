@@ -24,7 +24,7 @@ const nodeProvider = {
   },
   chainId: process.env.ChainId,
   name: 'mxw',
-  kyc: { issuer: process.env.KycIssuer || dunno },
+  kyc: { issuer: process.env.KycIssuer || 'dunno' },
   nonFungibleToken: {
     provider: process.env.ProviderWalletMnemonic || 'dunno',
     issuer: process.env.IssuerWalletMnemonic || 'dunno',
@@ -68,9 +68,7 @@ describe('Maxonrow Blockchain Tests', function () {
       await maxBlockApi.createIdentityToken(symbol)
     } catch (err) {
       console.log('ERROR creating a new NFT Token!!!!!', err)
-      // TODO: use MaxonRow errors
     }
-    await Utils.sleep(10000)
   })
 
   it('Should create a Key NonFungibleTokenItem', async () => {
@@ -95,21 +93,23 @@ describe('Maxonrow Blockchain Tests', function () {
     expect(jsonMetadata.publicKeys[0].key).to.eq(pubKey)
   })
 
-  // it('Register a DID', async () => {
-  //   const receipt = await maxBlockApi.registerDid(did, pubKey)
-  //   console.log('RECEIPT:', JSON.stringify(receipt))
-  //   expect(receipt).to.be.exist
-  //   expect(receipt.status).to.eq(1)
-  // })
+  it('Register a DID', async () => {
+    const receipt = await maxBlockApi.registerDid(did, pubKey)
+    console.log('RECEIPT:', JSON.stringify(receipt))
+    expect(receipt).to.be.exist
+    expect(receipt.status).to.eq(1)
+  })
 
-  // it('GetKey from a DID', async () => {
-  //     maxBlockApi.getActualKey(did).then((key) => {
-  //         console.log('Did: ' + did + ' Returned key@: ' + key)
-  //         // console.log('HEX', hex)
-  //         // console.log('UTF8', Buffer.from(hex, 'hex').toString('utf8'))
-  //         // expect(key).equal(pubKey)
-  //     })
-  // })
+  it('Wait for item to be minted', async () => {
+    await Utils.sleep(10000)
+  })
+
+  it('GetKey from a DID', async () => {
+      maxBlockApi.getActualKey(did).then((key) => {
+          console.log('Did: ' + did + ' Returned key@: ' + key)
+          expect(key).equal(pubKey)
+      })
+  })
 
   // it('Register a Did Doc Hash', async () => {
   //   const randomHash = Utils.makeUniqueString.toString(16)
