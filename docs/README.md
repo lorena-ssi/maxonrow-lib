@@ -1,4 +1,4 @@
-Blockchain User Requirements and High Level Design
+# Lorena-Maxonrow integration README
 
 ## Requirements
 
@@ -12,14 +12,17 @@ Blockchain usage is specified by argument.
 
 --didMethod=did:lor:max
 
-### High Level Design
+## Design
 
 Infer from didMethod which Blockchain class must be instantiated
 
 ![Dids structure in MXN Blockchain](images/lorena-mxn.jpg)
 
-### Low Level Design
 
+### Practical Examples
+    - [Create a Token](create-token-sample.md)
+    - [Create a Token Item and mint it](create-tokenItem-and_mint.md)
+    - [Query a Token Item](query-tokenItem.md)
 
 <!--stackedit_data:
 eyJoaXN0b3J5IjpbMjA2MTYwMzYyOCwtMzI4Njg1NDU0LC0xMz
