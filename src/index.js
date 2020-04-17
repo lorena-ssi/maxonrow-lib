@@ -1,6 +1,6 @@
 'use strict'
 
-const { mxw, utils, nonFungibleToken } = require('mxw-sdk-js')
+const { mxw, utils, nonFungibleToken, nonFungibleTokenItem } = require('mxw-sdk-js')
 const { NonFungibleTokenActions } = nonFungibleToken
 const bigNumberify = utils.bigNumberify
 // const Utils = require('../src/utils/utils')
@@ -97,7 +97,7 @@ module.exports = class LorenaMaxonrow {
 
     // Mutable data
     const metadata = {
-      publicKeys: [keyStruct],
+      publicKeys: [keyStruct], // Array de keyStructures
       diddocHash: ''
     }
 
@@ -171,11 +171,11 @@ module.exports = class LorenaMaxonrow {
   }
 
   async registerDid (did, pubKey) {
-    const key = this.createKeyTokenItem(did, pubKey)
+    const tkItem = this.createKeyTokenItem(did, pubKey)
 
     return nonFungibleToken.NonFungibleToken.fromSymbol(this.symbol, this.wallet).then((minterIdentity) => {
       // Mint to this wallet address
-      return minterIdentity.mint(this.wallet.address, key).then((receipt) => {
+      return minterIdentity.mint(this.wallet.address, tkItem).then((receipt) => {
         console.log(receipt) // do something
         return receipt
       })
@@ -183,32 +183,34 @@ module.exports = class LorenaMaxonrow {
   }
 
   async getActualKey (did) {
-    return mxw.nonFungibleToken.NonFungibleToken.fromSymbol(this.symbol, did, this.wallet).then((tkItem) => {
-      console.log(JSON.stringify(tkItem))
-      return tkItem.metadata.publicKeys[tkItem.metadata.publicKeys.length - 1].key
-      // return tkItem.metadata.publicKeys[0].key
+    return nonFungibleTokenItem.NonFungibleTokenItem.fromSymbol(this.symbol, did, this.wallet).then((tkItem) => {
+      console.log(tkItem.state.metadata)
+      const index = JSON.parse(tkItem.state.metadata).publicKeys.length - 1
+      const key = JSON.parse(tkItem.state.metadata).publicKeys[index].key
+      return key
     })
   }
 
   async getDidDocHash (did) {
-    return mxw.nonFungibleToken.NonFungibleToken.fromSymbol(this.symbol, did, this.wallet).then((tkItem) => {
-      console.log(JSON.stringify(tkItem))
-      return tkItem.metadata.diddocHash
+    return nonFungibleTokenItem.NonFungibleTokenItem.fromSymbol(this.symbol, did, this.wallet).then((tkItem) => {
+      console.log(tkItem.state.metadata.diddocHash)
+      return tkItem.state.metadata.diddocHash
     })
   }
 
   async registerDidDocHash (did, diddocHash) {
-    return mxw.nonFungibleToken.NonFungibleToken.fromSymbol(did, this.wallet).then((tkItem) => {
-      console.log(JSON.stringify(tkItem))
-      tkItem.metadata.diddocHash = diddocHash
-      this.token.updateMetadata(tkItem.metadata).then(() => {
+    return nonFungibleTokenItem.NonFungibleTokenItem.fromSymbol(this.symbol, did, this.wallet).then((tkItem) => {
+      let newData = JSON.parse(tkItem.state.metadata)
+      newData.diddocHash = diddocHash
+      tkItem.updateMetadata(JSON.stringify(newData)).then(() => {
+        console.log('New diddochash:', newData)
         console.log('Diddochash updated!')
       })
     })
   }
 
   async rotateKey (did, newPubKey) {
-    return mxw.nonFungibleToken.NonFungibleToken.fromSymbol(this.symbol, did, this.wallet).then((tkItem) => {
+    return nonFungibleTokenItem.NonFungibleTokenItem.fromSymbol(this.symbol, did, this.wallet).then((tkItem) => {
       console.log(JSON.stringify(tkItem))
       tkItem.metadata.pubKey.append(newPubKey)
       this.token.updateMetadata(tkItem.metadata).then(() => {

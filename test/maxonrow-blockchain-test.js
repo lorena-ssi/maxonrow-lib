@@ -1,6 +1,7 @@
 'use strict'
 const chai = require('chai')
 var chaiAsPromised = require('chai-as-promised')
+require('dotenv').config()
 
 // Configure chai
 chai.should()
@@ -101,23 +102,24 @@ describe('Maxonrow Blockchain Tests', function () {
   })
 
   it('Wait for item to be minted', async () => {
-    await Utils.sleep(10000)
+    await Utils.sleep(3000)
   })
 
-  it('GetKey from a DID', async () => {
+  it('GetKey from a DID', (done) => {
       maxBlockApi.getActualKey(did).then((key) => {
           console.log('Did: ' + did + ' Returned key@: ' + key)
           expect(key).equal(pubKey)
+          done()
       })
   })
 
-  // it('Register a Did Doc Hash', async () => {
-  //   const randomHash = Utils.makeUniqueString.toString(16)
-  //   await maxBlockApi.registerDidDocument(did, randomHash)
-  //   console.log('Register a Did Doc Hash - Did:' + did + ' RandomHash:' + randomHash)
-  //   await maxBlockApi.getDidDocHash(did) (result)
-  //   console.log('getDidDocHash - Query - Hash', result)
-  // })
+  it('Register a Did Doc Hash', async () => {
+    const randomHash = Utils.makeUniqueString(16)
+    await maxBlockApi.registerDidDocHash(did, randomHash)
+    console.log('Register a Did Doc Hash - Did:' + did + ' RandomHash:' + randomHash)
+    const result = await maxBlockApi.getDidDocHash(did)
+    console.log('getDidDocHash - Query - Hash', result)
+  })
 
   // it('Rotate Key', async () => {
   //     const newPubKey = await generatePublicKey(did)
