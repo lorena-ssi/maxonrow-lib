@@ -202,18 +202,22 @@ module.exports = class LorenaMaxonrow {
     return nonFungibleTokenItem.NonFungibleTokenItem.fromSymbol(this.symbol, did, this.wallet).then((tkItem) => {
       const newData = JSON.parse(tkItem.state.metadata)
       newData.diddocHash = diddocHash
-      tkItem.updateMetadata(JSON.stringify(newData)).then(() => {
-        console.log('New diddochash:', newData)
+      return tkItem.updateMetadata(JSON.stringify(newData)).then(() => {
+        console.log('New diddochash:', newData.diddocHash)
         console.log('Diddochash updated!')
+        return newData.diddocHash;
       })
     })
   }
 
   async rotateKey (did, newPubKey) {
     return nonFungibleTokenItem.NonFungibleTokenItem.fromSymbol(this.symbol, did, this.wallet).then((tkItem) => {
-      console.log(JSON.stringify(tkItem))
-      tkItem.metadata.pubKey.append(newPubKey)
-      this.token.updateMetadata(tkItem.metadata).then(() => {
+      console.log(tkItem.state.metadata)
+      let metadata = JSON.parse(tkItem.state.metadata)
+      metadata.publicKeys = newPubKey
+      console.log('New metadata', metadata)
+      return tkItem.updateMetadata(JSON.stringify(metadata)).then(() => {
+        console.log('New newPubKey:', newPubKey)
         console.log('PublicKey updated!')
       })
     })

@@ -51,7 +51,7 @@ const generatePublicKey = async (did) => {
 
 describe('Maxonrow Blockchain Tests', function () {
   let maxBlockApi
-  let symbol, did, pubKey
+  let symbol, did, pubKey, newPubKey, randomHash
   // Someone wallet that has been passed kyc
   const mnemonic = 'pill maple dutch predict bulk goddess nice left paper heart loan fresh'
 
@@ -60,6 +60,8 @@ describe('Maxonrow Blockchain Tests', function () {
     const didString = Utils.makeUniqueString(16)
     did = await generateDid(didString)
     pubKey = await generatePublicKey(did)
+    newPubKey = await generatePublicKey(did)
+    randomHash = Utils.makeUniqueString(16)
     maxBlockApi = new LorenaMaxonrow(symbol, mnemonic, nodeProvider)
     await maxBlockApi.connect()
   })
@@ -101,36 +103,42 @@ describe('Maxonrow Blockchain Tests', function () {
     expect(receipt.status).to.eq(1)
   })
 
-  it('Wait for item to be minted', async () => {
-    await Utils.sleep(3000)
-  })
-
-  it('GetKey from a DID', (done) => {
-      maxBlockApi.getActualKey(did).then((key) => {
-          console.log('Did: ' + did + ' Returned key@: ' + key)
-          expect(key).equal(pubKey)
-          done()
-      })
+  it('GetKey from a DID', async () => {
+    const key = await maxBlockApi.getActualKey(did)
+    console.log('Did: ' + did + ' Returned key@: ' + key)
+    expect(key).equal(pubKey)
   })
 
   it('Register a Did Doc Hash', async () => {
-    const randomHash = Utils.makeUniqueString(16)
     await maxBlockApi.registerDidDocHash(did, randomHash)
     console.log('Register a Did Doc Hash - Did:' + did + ' RandomHash:' + randomHash)
-    const result = await maxBlockApi.getDidDocHash(did)
-    console.log('getDidDocHash - Query - Hash', result)
   })
 
-  // it('Rotate Key', async () => {
-  //     const newPubKey = await generatePublicKey(did)
-  //     await maxBlockApi.rotateKey(did, newPubKey)
-  //     await subscribe2RegisterEvents(maxBlockApi.api, 'KeyRotated')
-  //     const key = await maxBlockApi.getActualDidKey(did)
-  //     console.log('Rotate Key test - Did:' + did + ' Old key:' + pubKey + ' New registered key:' + key)
-  //     expect(key).equal(newPubKey)
-  // })
+  it('Wait for DidDocHash to be updated', async () => {
+    await Utils.sleep(1000)
+  })
 
-  after('Clean up connections', function () {
+  it('Check for new DidDocHash', async () => {
+    const result = await maxBlockApi.getDidDocHash(did)
+    console.log('getDidDocHash - Query - Hash', result)
+    expect(randomHash).equal(result)
+  })
+
+//   it('Rotate Key', async () => {
+//       await maxBlockApi.rotateKey(did, newPubKey)
+//   })
+
+//   it('Wait for Key to be rotated', async () => {
+//     await Utils.sleep(1000)
+// })
+
+//   it('Get new Rotated Key', async () => {
+//     const key = await maxBlockApi.getActualKey(did)
+//     console.log('Rotate Key test - Did:' + did + ' Old key:' + pubKey + ' New registered key:' + key)
+//     expect(key).equal(newPubKey)
+//   })
+
+  after('Clean up connections', async () => {
     maxBlockApi.disconnect()
   })
 })
