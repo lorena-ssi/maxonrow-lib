@@ -112,31 +112,17 @@ describe('Maxonrow Blockchain Tests', function () {
   it('Register a Did Doc Hash', async () => {
     await maxBlockApi.registerDidDocHash(did, randomHash)
     console.log('Register a Did Doc Hash - Did:' + did + ' RandomHash:' + randomHash)
-  })
-
-  it('Wait for DidDocHash to be updated', async () => {
-    await Utils.sleep(1000)
-  })
-
-  it('Check for new DidDocHash', async () => {
     const result = await maxBlockApi.getDidDocHash(did)
     console.log('getDidDocHash - Query - Hash', result)
     expect(randomHash).equal(result)
   })
 
-//   it('Rotate Key', async () => {
-//       await maxBlockApi.rotateKey(did, newPubKey)
-//   })
-
-//   it('Wait for Key to be rotated', async () => {
-//     await Utils.sleep(1000)
-// })
-
-//   it('Get new Rotated Key', async () => {
-//     const key = await maxBlockApi.getActualKey(did)
-//     console.log('Rotate Key test - Did:' + did + ' Old key:' + pubKey + ' New registered key:' + key)
-//     expect(key).equal(newPubKey)
-//   })
+  it('Rotate Key', async () => {
+    await maxBlockApi.rotateKey(did, newPubKey)
+    const key = await maxBlockApi.getActualKey(did)
+    console.log('Rotate Key test - Did:' + did + ' Old key:' + pubKey + ' New registered key:' + key)
+    expect(key).equal(newPubKey)
+  })
 
   after('Clean up connections', async () => {
     maxBlockApi.disconnect()
