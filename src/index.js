@@ -200,7 +200,7 @@ module.exports = class LorenaMaxonrow {
 
   async registerDidDocHash (did, diddocHash) {
     return nonFungibleTokenItem.NonFungibleTokenItem.fromSymbol(this.symbol, did, this.wallet).then((tkItem) => {
-      let newData = JSON.parse(tkItem.state.metadata)
+      const newData = JSON.parse(tkItem.state.metadata)
       newData.diddocHash = diddocHash
       tkItem.updateMetadata(JSON.stringify(newData)).then(() => {
         console.log('New diddochash:', newData)
