@@ -3,7 +3,7 @@
 ### Use Maxonrow Blockchain
 Blockchain usage is specified by argument.
 
---didMethod=did:lor:max
+--didMethod=did:lor:mxn
 
 ## Design
 
