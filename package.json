@@ -1,5 +1,5 @@
 {
-  "name": "maxonrow-lib",
+  "name": "@lorena-ssi/maxonrow-lib",
   "version": "1.0.0",
   "description": "Lorena Maxonrow integration library",
   "main": "src/index.js",
