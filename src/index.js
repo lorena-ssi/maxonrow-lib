@@ -182,7 +182,7 @@ module.exports = class LorenaMaxonrow {
     })
   }
 
-  async getActualKey (did) {
+  async getActualDidKey (did) {
     return nonFungibleTokenItem.NonFungibleTokenItem.fromSymbol(this.symbol, did, this.wallet).then((tkItem) => {
       console.log(tkItem.state.metadata)
       const index = JSON.parse(tkItem.state.metadata).publicKeys.length - 1
@@ -199,7 +199,7 @@ module.exports = class LorenaMaxonrow {
     })
   }
 
-  async registerDidDocHash (did, diddocHash) {
+  async registerDidDocument (did, diddocHash) {
     return nonFungibleTokenItem.NonFungibleTokenItem.fromSymbol(this.symbol, did, this.wallet).then((tkItem) => {
       const newData = JSON.parse(tkItem.state.metadata)
       newData.diddocHash = diddocHash

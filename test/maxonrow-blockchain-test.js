@@ -104,13 +104,13 @@ describe('Maxonrow Blockchain Tests', function () {
   })
 
   it('GetKey from a DID', async () => {
-    const key = await maxBlockApi.getActualKey(did)
+    const key = await maxBlockApi.getActualDidKey(did)
     console.log('Did: ' + did + ' Returned key@: ' + key)
     expect(key).equal(pubKey)
   })
 
   it('Register a Did Doc Hash', async () => {
-    await maxBlockApi.registerDidDocHash(did, randomHash)
+    await maxBlockApi.registerDidDocument(did, randomHash)
     console.log('Register a Did Doc Hash - Did:' + did + ' RandomHash:' + randomHash)
     const result = await maxBlockApi.getDidDocHash(did)
     console.log('getDidDocHash - Query - Hash', result)
@@ -119,7 +119,7 @@ describe('Maxonrow Blockchain Tests', function () {
 
   it('Rotate Key', async () => {
     await maxBlockApi.rotateKey(did, newPubKey)
-    const key = await maxBlockApi.getActualKey(did)
+    const key = await maxBlockApi.getActualDidKey(did)
     console.log('Rotate Key test - Did:' + did + ' Old key:' + pubKey + ' New registered key:' + key)
     expect(key).equal(newPubKey)
   })
