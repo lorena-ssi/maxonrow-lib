@@ -9,7 +9,7 @@ Blockchain usage is specified by argument.
 
 Infer from didMethod which Blockchain class must be instantiated
 
-![Dids structure in MXN Blockchain](images/lorena-mxn.jpg)
+![Dids structure in MXN Blockchain](docs/images/lorena-mxn.jpg)
 
 Initially, the TokenItem structure was conceived to hold the whole Identity's public keys history.
 However, due to size limitations on TokenItems, it holds only the most recent key inside the publicKeys array in metadata:
