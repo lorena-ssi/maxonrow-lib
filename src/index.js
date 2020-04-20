@@ -1,5 +1,6 @@
 'use strict'
 
+const BlockchainInterface = require('@lorena-ssi/blockchain-lib')
 const { mxw, utils, nonFungibleToken, nonFungibleTokenItem } = require('mxw-sdk-js')
 const { NonFungibleTokenActions } = nonFungibleToken
 const bigNumberify = utils.bigNumberify
@@ -10,8 +11,9 @@ const indent = '     '
 /**
  * Javascript Class to interact with Maxonrow Blockchain.
  */
-module.exports = class LorenaMaxonrow {
+module.exports = class LorenaMaxonrow extends BlockchainInterface {
   constructor (symbol, mnemonic, nodeProvider) {
+    super()
     this.api = false
     this.keypair = {}
     this.units = 1000000000
