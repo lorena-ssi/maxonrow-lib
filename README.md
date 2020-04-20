@@ -22,10 +22,17 @@ However, due to size limitations on TokenItems, it holds only the most recent ke
 
 ### Step by step
 1) Create a Token (i.e. LORDID) 
-    Maxonrow blockchain Tokens is like a class definition where you define the Token Symbol for this of class.
-    In our case symbol = LORDID
+    A Maxonrow blockchain Token is like a class definition where you define the Token Symbol, metadata and properties.
+    - Symbol is the class ID
+         In our case symbol = LORDID
+    - Metadata is a mutable data field for this Token (class)
+    - Properties is a inmutable data field for this Token (class)
+
 
 2) Create a TokenItem (i.e. an Identity)
+    - A TokenItem must assign a symbol (should be Token symbol it belongs to)
+    - itemID = Item Unique ID (used during search)
+    - Properties and metadata for this Item (object)
 ```javascript
     TokenItem = {
       symbol: this.symbol // Token symbol it belongs to (i.e. LORDID)
