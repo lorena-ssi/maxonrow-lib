@@ -52,8 +52,6 @@ const generatePublicKey = async (did) => {
 describe('Maxonrow Blockchain Tests', function () {
   let maxBlockApi
   let symbol, did, pubKey, newPubKey, randomHash
-  // Someone wallet that has been passed kyc
-  const mnemonic = 'pill maple dutch predict bulk goddess nice left paper heart loan fresh'
 
   before('Lorena Maxonrow Test Preparation', async () => {
     symbol = 'LOR' + Utils.makeUniqueString(4)
@@ -62,7 +60,7 @@ describe('Maxonrow Blockchain Tests', function () {
     pubKey = await generatePublicKey(did)
     newPubKey = await generatePublicKey(did)
     randomHash = Utils.makeUniqueString(16)
-    maxBlockApi = new LorenaMaxonrow(symbol, mnemonic, nodeProvider)
+    maxBlockApi = new LorenaMaxonrow(symbol, nodeProvider.kyc.issuer, nodeProvider)
     await maxBlockApi.connect()
   })
 
