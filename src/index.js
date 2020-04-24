@@ -172,6 +172,9 @@ module.exports = class LorenaMaxonrow extends BlockchainInterface {
       })
   }
 
+  setKeyring () {
+  }
+
   async registerDid (did, pubKey) {
     const tkItem = this.createKeyTokenItem(did, pubKey)
 
