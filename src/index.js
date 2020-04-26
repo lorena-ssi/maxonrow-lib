@@ -56,16 +56,27 @@ module.exports = class LorenaMaxonrow extends BlockchainInterface {
       this.wallet = mxw.Wallet.fromMnemonic(this.mnemonic).connect(this.providerConnection)
       if (!silent) console.log(indent, 'Wallet:', JSON.stringify({ address: this.wallet.address, mnemonic: this.wallet.mnemonic }))
 
-      this.provider = mxw.Wallet.fromMnemonic(this.nodeProvider.nonFungibleToken.provider).connect(this.providerConnection)
-      if (!silent) console.log(indent, 'Provider:', JSON.stringify({ address: this.provider.address, mnemonic: this.provider.mnemonic }))
+      /** Only necessary to create new Tokens */
+      if (this.nodeProvider.nonFungibleToken.provider !== 'dunno') {
+        this.provider = mxw.Wallet.fromMnemonic(this.nodeProvider.nonFungibleToken.provider).connect(this.providerConnection)
+        if (!silent) console.log(indent, 'Provider:', JSON.stringify({ address: this.provider.address, mnemonic: this.provider.mnemonic }))
+      }
 
-      this.issuer = mxw.Wallet.fromMnemonic(this.nodeProvider.nonFungibleToken.issuer).connect(this.providerConnection)
-      if (!silent) console.log(indent, 'Issuer:', JSON.stringify({ address: this.issuer.address, mnemonic: this.issuer.mnemonic }))
+      if (this.nodeProvider.nonFungibleToken.issuer !== 'dunno') {
+        this.issuer = mxw.Wallet.fromMnemonic(this.nodeProvider.nonFungibleToken.issuer).connect(this.providerConnection)
+        if (!silent) console.log(indent, 'Issuer:', JSON.stringify({ address: this.issuer.address, mnemonic: this.issuer.mnemonic }))
+      }
 
-      this.middleware = mxw.Wallet.fromMnemonic(this.nodeProvider.nonFungibleToken.middleware).connect(this.providerConnection)
-      if (!silent) console.log(indent, 'Middleware:', JSON.stringify({ address: this.middleware.address, mnemonic: this.middleware.mnemonic }))
+      if (this.nodeProvider.nonFungibleToken.middleware !== 'dunno') {
+        this.middleware = mxw.Wallet.fromMnemonic(this.nodeProvider.nonFungibleToken.middleware).connect(this.providerConnection)
+        if (!silent) console.log(indent, 'Middleware:', JSON.stringify({ address: this.middleware.address, mnemonic: this.middleware.mnemonic }))
+      }
 
-      if (!silent) console.log(indent, 'Fee collector:', JSON.stringify({ address: this.nodeProvider.nonFungibleToken.feeCollector }))
+      if (this.nodeProvider.nonFungibleToken.feeCollector !== 'dunno') {
+        this.feeCollector = this.nodeProvider.nonFungibleToken.feeCollector
+        if (!silent) console.log(indent, 'Fee collector:', JSON.stringify({ address: this.feeCollector }))
+      }
+      /** ************************************* */
     }).catch(error => {
       console.log(error)
       throw error
@@ -73,16 +84,6 @@ module.exports = class LorenaMaxonrow extends BlockchainInterface {
   }
 
   createKeyTokenItem (did, pubKeyReceived) {
-    /**
-     * Substrate Key:
-     * Key {
-     *  publicKey: ,
-     *  diddoc_hash: ,
-     *  valid_from: ,
-     *  valid_to:
-     * }
-     */
-
     // Convert did string to hashed did
     // const hashedDID = Utils.hashCode(did)
 
@@ -120,7 +121,7 @@ module.exports = class LorenaMaxonrow extends BlockchainInterface {
       name: 'Decentralised identifier Test',
       symbol: this.symbol,
       fee: {
-        to: this.nodeProvider.nonFungibleToken.feeCollector, // feeCollector wallet address
+        to: this.feeCollector, // feeCollector wallet address
         value: bigNumberify('1')
       },
       metadata: 'Wallet able to manage their own metadata',
