@@ -88,10 +88,11 @@ describe('Maxonrow Blockchain Tests', function () {
     const jsonMetadata = JSON.parse(myKey.metadata)
     expect(jsonMetadata).to.be.an('object')
     expect(jsonMetadata).to.have.any.keys(
-      'diddocHash'
+      'key',
+      'from',
+      'to',
+      'doc'
     )
-    expect(jsonMetadata.publicKeys).to.have.be.an('array')
-    expect(jsonMetadata.publicKeys[0].key).to.eq(pubKey)
   })
 
   it('Register a DID', async () => {
