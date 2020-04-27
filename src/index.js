@@ -84,24 +84,12 @@ module.exports = class LorenaMaxonrow extends BlockchainInterface {
   }
 
   createKeyTokenItem (did, pubKeyReceived) {
-    // Convert did string to hashed did
-    // const hashedDID = Utils.hashCode(did)
-
-    // Convert pubKey to vec[u8]
-    // const arr = Utils.toUTF8Array(pubKey)
-
-    // console.log('Hasheddid:' + hashedDID + ' UTF8 pubkey arr:' + arr)
-
-    const keyStruct = {
-      key: pubKeyReceived,
-      valid_from: Date.now().toString(),
-      valid_to: '0'
-    }
-
     // Mutable data
     const metadata = {
-      publicKeys: [keyStruct], // Array de keyStructures
-      diddocHash: ''
+      key: pubKeyReceived,
+      from: Date.now().toString(),
+      to: '0',
+      doc: ''
     }
 
     // Immutable data
@@ -191,15 +179,14 @@ module.exports = class LorenaMaxonrow extends BlockchainInterface {
   async getActualDidKey (did) {
     return nonFungibleTokenItem.NonFungibleTokenItem.fromSymbol(this.symbol, did, this.wallet).then((tkItem) => {
       console.log(tkItem.state.metadata)
-      const index = JSON.parse(tkItem.state.metadata).publicKeys.length - 1
-      const key = JSON.parse(tkItem.state.metadata).publicKeys[index].key
+      const key = JSON.parse(tkItem.state.metadata).key
       return key
     })
   }
 
   async getDidDocHash (did) {
     return nonFungibleTokenItem.NonFungibleTokenItem.fromSymbol(this.symbol, did, this.wallet).then((tkItem) => {
-      const diddocHash = JSON.parse(tkItem.state.metadata).diddocHash
+      const diddocHash = JSON.parse(tkItem.state.metadata).doc
       console.log(diddocHash)
       return diddocHash
     })
@@ -208,9 +195,9 @@ module.exports = class LorenaMaxonrow extends BlockchainInterface {
   async registerDidDocument (did, diddocHash) {
     return nonFungibleTokenItem.NonFungibleTokenItem.fromSymbol(this.symbol, did, this.wallet).then((tkItem) => {
       const newData = JSON.parse(tkItem.state.metadata)
-      newData.diddocHash = diddocHash
+      newData.doc = diddocHash
       return tkItem.updateMetadata(JSON.stringify(newData)).then(() => {
-        console.log('New diddochash:', newData.diddocHash)
+        console.log('New diddochash:', newData.doc)
         console.log('Diddochash updated!')
         return newData.diddocHash
       })
@@ -220,12 +207,11 @@ module.exports = class LorenaMaxonrow extends BlockchainInterface {
   async rotateKey (did, newPubKey) {
     return nonFungibleTokenItem.NonFungibleTokenItem.fromSymbol(this.symbol, did, this.wallet).then((tkItem) => {
       const metadata = JSON.parse(tkItem.state.metadata)
-      const index = metadata.publicKeys.length - 1
-      metadata.publicKeys[index].key = newPubKey
+      metadata.key = newPubKey
       return tkItem.updateMetadata(JSON.stringify(metadata)).then(() => {
         console.log('New newPubKey:', newPubKey)
         console.log('PublicKey updated!')
-        return metadata.publicKeys[index].key
+        return metadata.key
       })
     })
   }
