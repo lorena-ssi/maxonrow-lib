@@ -12,7 +12,7 @@ const indent = '     '
  * Javascript Class to interact with Maxonrow Blockchain.
  */
 module.exports = class LorenaMaxonrow extends BlockchainInterface {
-  constructor (symbol, mnemonic, nodeProvider) {
+  constructor (symbol, nodeProvider) {
     super()
     this.api = false
     this.keypair = {}
@@ -21,7 +21,6 @@ module.exports = class LorenaMaxonrow extends BlockchainInterface {
       ...nodeProvider
     }
     this.symbol = symbol
-    this.mnemonic = mnemonic
 
     this.defaultOverrides = {
       logSignaturePayload: (payload) => {
@@ -53,8 +52,6 @@ module.exports = class LorenaMaxonrow extends BlockchainInterface {
         })
 
       const silent = this.nodeProvider.trace.silent
-      this.wallet = mxw.Wallet.fromMnemonic(this.mnemonic).connect(this.providerConnection)
-      if (!silent) console.log(indent, 'Wallet:', JSON.stringify({ address: this.wallet.address, mnemonic: this.wallet.mnemonic }))
 
       /** Only necessary to create new Tokens */
       if (this.nodeProvider.nonFungibleToken.provider !== 'dunno') {
@@ -161,7 +158,9 @@ module.exports = class LorenaMaxonrow extends BlockchainInterface {
       })
   }
 
-  setKeyring () {
+  setKeyring (mnemonic) {
+    this.wallet = mxw.Wallet.fromMnemonic(mnemonic).connect(this.providerConnection)
+    if (!this.nodeProvider.trace.silent) console.log(indent, 'Wallet:', JSON.stringify({ address: this.wallet.address, mnemonic: this.wallet.mnemonic }))
   }
 
   async registerDid (did, pubKey) {

@@ -60,8 +60,9 @@ describe('Maxonrow Blockchain Tests', function () {
     pubKey = await generatePublicKey(did)
     newPubKey = await generatePublicKey(did)
     randomHash = Utils.makeUniqueString(16)
-    maxBlockApi = new LorenaMaxonrow(symbol, nodeProvider.kyc.issuer, nodeProvider)
+    maxBlockApi = new LorenaMaxonrow(symbol, nodeProvider)
     await maxBlockApi.connect()
+    maxBlockApi.setKeyring(process.env.KycIssuer)
   })
 
   it('Create Non Fungible Token', async () => {
