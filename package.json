@@ -1,6 +1,6 @@
 {
   "name": "@lorena-ssi/maxonrow-lib",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Lorena Maxonrow integration library",
   "main": "src/index.js",
   "author": "Caelum Labs",
