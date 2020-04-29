@@ -25,12 +25,12 @@ const nodeProvider = {
   },
   chainId: process.env.ChainId,
   name: 'mxw',
-  kyc: { issuer: process.env.KycIssuer || 'unknown' },
+  kyc: { issuer: process.env.KycIssuer },
   nonFungibleToken: {
-    provider: process.env.ProviderWalletMnemonic || 'unknown',
-    issuer: process.env.IssuerWalletMnemonic || 'unknown',
-    middleware: process.env.MiddlewareWalletMnemonic || 'unknown',
-    feeCollector: process.env.FeeCollectorWalletAddr || 'unknown'
+    provider: process.env.ProviderWalletMnemonic,
+    issuer: process.env.IssuerWalletMnemonic,
+    middleware: process.env.MiddlewareWalletMnemonic,
+    feeCollector: process.env.FeeCollectorWalletAddr
   }
 }
 
