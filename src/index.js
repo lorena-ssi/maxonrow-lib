@@ -77,6 +77,8 @@ module.exports = class LorenaMaxonrow extends BlockchainInterface {
           this.feeCollector = this.nodeProvider.nonFungibleToken.feeCollector
           if (!silent) console.log(indent, 'Fee collector:', JSON.stringify({ address: this.feeCollector }))
         }
+
+        return true
       }
       /** ************************************* */
     }).catch(error => {
@@ -182,7 +184,7 @@ module.exports = class LorenaMaxonrow extends BlockchainInterface {
 
   async getActualDidKey (did) {
     return nonFungibleTokenItem.NonFungibleTokenItem.fromSymbol(this.symbol, did, this.wallet).then((tkItem) => {
-      console.log(tkItem.state.metadata)
+      // console.log(tkItem.state.metadata)
       const key = JSON.parse(tkItem.state.metadata).key
       return key
     })
@@ -191,7 +193,7 @@ module.exports = class LorenaMaxonrow extends BlockchainInterface {
   async getDidDocHash (did) {
     return nonFungibleTokenItem.NonFungibleTokenItem.fromSymbol(this.symbol, did, this.wallet).then((tkItem) => {
       const diddocHash = JSON.parse(tkItem.state.metadata).doc
-      console.log(diddocHash)
+      // console.log(diddocHash)
       return diddocHash
     })
   }
@@ -201,8 +203,8 @@ module.exports = class LorenaMaxonrow extends BlockchainInterface {
       const newData = JSON.parse(tkItem.state.metadata)
       newData.doc = diddocHash
       return tkItem.updateMetadata(JSON.stringify(newData)).then(() => {
-        console.log('New diddochash:', newData.doc)
-        console.log('Diddochash updated!')
+        // console.log('New diddochash:', newData.doc)
+        // console.log('Diddochash updated!')
         return newData.diddocHash
       })
     })
@@ -213,8 +215,8 @@ module.exports = class LorenaMaxonrow extends BlockchainInterface {
       const metadata = JSON.parse(tkItem.state.metadata)
       metadata.key = newPubKey
       return tkItem.updateMetadata(JSON.stringify(metadata)).then(() => {
-        console.log('New newPubKey:', newPubKey)
-        console.log('PublicKey updated!')
+        // console.log('New newPubKey:', newPubKey)
+        // console.log('PublicKey updated!')
         return metadata.key
       })
     })
