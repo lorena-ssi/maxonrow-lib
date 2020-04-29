@@ -51,25 +51,28 @@ module.exports = class LorenaMaxonrow extends BlockchainInterface {
           }
         })
 
-      const silent = this.nodeProvider.trace.silent
+      let silent = true
+      if (this.nodeProvider.trace.silent) {
+        silent = this.nodeProvider.trace.silent
+      }
 
       /** Only necessary to create new Tokens */
-      if (this.nodeProvider.nonFungibleToken.provider !== 'dunno') {
+      if (!this.nodeProvider.nonFungibleToken.provider || this.nodeProvider.nonFungibleToken.provider !== 'unknown') {
         this.provider = mxw.Wallet.fromMnemonic(this.nodeProvider.nonFungibleToken.provider).connect(this.providerConnection)
         if (!silent) console.log(indent, 'Provider:', JSON.stringify({ address: this.provider.address, mnemonic: this.provider.mnemonic }))
       }
 
-      if (this.nodeProvider.nonFungibleToken.issuer !== 'dunno') {
+      if (!this.nodeProvider.nonFungibleToken.issuer || this.nodeProvider.nonFungibleToken.issuer !== 'unknown') {
         this.issuer = mxw.Wallet.fromMnemonic(this.nodeProvider.nonFungibleToken.issuer).connect(this.providerConnection)
         if (!silent) console.log(indent, 'Issuer:', JSON.stringify({ address: this.issuer.address, mnemonic: this.issuer.mnemonic }))
       }
 
-      if (this.nodeProvider.nonFungibleToken.middleware !== 'dunno') {
+      if (!this.nodeProvider.nonFungibleToken.middleware || this.nodeProvider.nonFungibleToken.middleware !== 'unknown') {
         this.middleware = mxw.Wallet.fromMnemonic(this.nodeProvider.nonFungibleToken.middleware).connect(this.providerConnection)
         if (!silent) console.log(indent, 'Middleware:', JSON.stringify({ address: this.middleware.address, mnemonic: this.middleware.mnemonic }))
       }
 
-      if (this.nodeProvider.nonFungibleToken.feeCollector !== 'dunno') {
+      if (!this.nodeProvider.nonFungibleToken.feeCollector || this.nodeProvider.nonFungibleToken.feeCollector !== 'unknown') {
         this.feeCollector = this.nodeProvider.nonFungibleToken.feeCollector
         if (!silent) console.log(indent, 'Fee collector:', JSON.stringify({ address: this.feeCollector }))
       }
