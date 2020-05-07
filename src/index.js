@@ -4,7 +4,6 @@ const BlockchainInterface = require('@lorena-ssi/blockchain-lib')
 const { mxw, utils, nonFungibleToken, nonFungibleTokenItem } = require('mxw-sdk-js')
 const { NonFungibleTokenActions } = nonFungibleToken
 const bigNumberify = utils.bigNumberify
-// const Utils = require('../src/utils/utils')
 
 const indent = '     '
 
