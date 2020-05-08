@@ -1,9 +1,9 @@
-# Lorena-Maxonrow integration README
+# maxonrow-lib
 
-### Use Maxonrow Blockchain
-Blockchain usage is specified by argument.
+`maxonrow-lib` is an api for the [Maxonrow](https://www.maxonrow.com/) blockchain used in [Lorena SSI](https://github.com/lorena-ssi).
 
---didMethod=did:lor:mxn
+[![Build Status](https://travis-ci.com/lorena-ssi/maxonrow-lib.svg?branch=master)](https://travis-ci.com/lorena-ssi/maxonrow-lib)
+[![Coverage Status](https://coveralls.io/repos/github/lorena-ssi/maxonrow-lib/badge.svg?branch=master)](https://coveralls.io/github/lorena-ssi/maxonrow-lib?branch=master)
 
 ## Design
 
